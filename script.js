@@ -67,7 +67,10 @@ const sounds = {
     win: new Audio('sounds/win.mp3'),
     fight: new Audio('sounds/fight.mp3'),
     coin: new Audio('sounds/coin.mp3'),
-    hover: new Audio('sounds/hover.mp3')
+    hover: new Audio('sounds/hover.mp3'),
+    // Arka plan müzikleri
+    selectionMusic: new Audio('sounds/cps2-guile-stage.mp3'),
+    gameMusic: new Audio('sounds/street-fighter-theme.mp3')
 };
 
 // Ses çalma fonksiyonu - bitmesini beklemeden çalar
@@ -83,6 +86,26 @@ function playSound(sound) {
             console.log("Ses çalma hatası:", error);
         });
     }
+}
+
+// Arka plan müziği çalma fonksiyonu
+function playBackgroundMusic(music, volume = 0.1) {
+    music.loop = true;
+    music.volume = volume;
+    
+    const playPromise = music.play();
+    
+    if (playPromise !== undefined) {
+        playPromise.catch(error => {
+            console.log("Arka plan müziği çalma hatası:", error);
+        });
+    }
+}
+
+// Arka plan müziğini durdur
+function stopBackgroundMusic(music) {
+    music.pause();
+    music.currentTime = 0;
 }
 
 // Ses efektlerini önceden yükle
@@ -122,7 +145,19 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("Lütfen önce iki oyuncu seçin!");
         }
     });
+    
+    // Kullanıcı etkileşimi için bir kez tıklama olayı ekle (müzik çalması için)
+    document.addEventListener('click', initBackgroundMusic, { once: true });
+    
+    // Dokunma olayı için de ekle (mobil cihazlar için)
+    document.addEventListener('touchstart', initBackgroundMusic, { once: true });
 });
+
+// Arka plan müziğini başlat (kullanıcı etkileşimi sonrası)
+function initBackgroundMusic() {
+    console.log("Kullanıcı etkileşimi algılandı, müzik başlatılıyor");
+    playBackgroundMusic(sounds.selectionMusic);
+}
 
 // DOM elementleri
 const playerGrid = document.getElementById('player-grid');
@@ -395,6 +430,9 @@ function startDartMatch() {
     startButton.textContent = 'OYUN BAŞLADI';
     startButton.classList.add('game-started');
     
+    // Seçim ekranı müziğini durdur
+    stopBackgroundMusic(sounds.selectionMusic);
+    
     // Dart maçı alanını oluştur
     createDartMatchArea();
     
@@ -408,6 +446,11 @@ function startDartMatch() {
             dartMatchArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }, 500);
+    
+    // Oyun müziğini başlat (seçim ekranı müziği durdurulduktan sonra)
+    setTimeout(() => {
+        playBackgroundMusic(sounds.gameMusic);
+    }, 300);
 }
 
 // Oyuncu seçimi için Street Fighter tarzı ses efektleri ve animasyonlar
@@ -1156,6 +1199,10 @@ function resetGameAndReturnToSelection() {
     // Başlat butonunu aktifleştir
     startMatchButton.disabled = false;
     startMatchButton.classList.add('active');
+    
+    // Arka plan müziğini değiştir
+    stopBackgroundMusic(sounds.gameMusic);
+    playBackgroundMusic(sounds.selectionMusic);
 }
 
 // Mobil kontrolleri ayarla
