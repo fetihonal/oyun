@@ -477,11 +477,6 @@ function createDartMatchArea() {
     dartBoardArea.className = 'dart-board-area';
     dartBoardArea.appendChild(dartBoard);
     
-    // Karakter ve dart tahtasını oyun alanına ekle
-    characterArea.appendChild(activeCharacter);
-    gameArea.appendChild(characterArea);
-    gameArea.appendChild(dartBoardArea);
-    
     // Skor tablosu alanı - Üstte olacak
     const scoreboardArea = document.createElement('div');
     scoreboardArea.className = 'scoreboard-area';
@@ -597,6 +592,11 @@ function createDartMatchArea() {
         </div>
     `;
     
+    // Karakter ve dart tahtasını oyun alanına ekle
+    characterArea.appendChild(activeCharacter);
+    gameArea.appendChild(characterArea);
+    gameArea.appendChild(dartBoardArea);
+    
     // Oyuncu alanlarını, skor tablosunu ve oyun alanını dart maçı alanına ekle
     dartMatchArea.appendChild(scoreboardArea);
     dartMatchArea.appendChild(gameArea);
@@ -704,12 +704,20 @@ function showHitNumber(number, multiplier) {
     let color = '#ffcc00';
     if (multiplier === 2) color = '#ff0000';
     if (multiplier === 3) color = '#00ff00';
+    if (multiplier === 0) color = '#ff6666'; // Iskaladığında kırmızımsı renk
     
     hitNumber.style.color = color;
     
     // İsabet edilen sayıyı göster
     if (multiplier > 1) {
         hitNumber.textContent = `${multiplier}x ${number}`;
+    } else if (multiplier === 0 && number === 'Iskaladı') {
+        // Iskaladığında ceza göster
+        hitNumber.textContent = `Iskaladı (-5)`;
+        
+        // Ceza puanını uygula
+        const opponentPlayer = gameState.activePlayer === 1 ? 2 : 1;
+        addPoints(opponentPlayer, 5);
     } else {
         hitNumber.textContent = number;
     }
@@ -1053,6 +1061,7 @@ function showWinnerAnimation(winner) {
     winnerDetails.innerHTML = `
         <div class="winner-score">Skor: ${winnerScore} - ${loserScore}</div>
         <div class="winner-stats">Fark: ${Math.abs(winnerScore - loserScore)} puan</div>
+        <button id="play-again-button" class="play-again-button">TEKRAR OYNA</button>
     `;
     
     winnerOverlay.appendChild(winnerText);
@@ -1067,13 +1076,72 @@ function showWinnerAnimation(winner) {
         navigator.vibrate([100, 50, 100, 50, 200]);
     }
     
-    // Animasyon
-    setTimeout(() => {
-        winnerOverlay.classList.add('fade-out');
-        setTimeout(() => {
-            document.body.removeChild(winnerOverlay);
-        }, 1000);
-    }, 4000);
+    // Tekrar oyna butonuna tıklama olayı ekle
+    document.getElementById('play-again-button').addEventListener('click', () => {
+        // Kazanan ekranını kapat
+        document.body.removeChild(winnerOverlay);
+        
+        // Oyunu sıfırla ve karakter seçim ekranına dön
+        resetGameAndReturnToSelection();
+    });
+}
+
+// Oyunu sıfırla ve karakter seçim ekranına dön
+function resetGameAndReturnToSelection() {
+    // Dart maçı alanını kaldır
+    const dartMatchArea = document.querySelector('.dart-match-area');
+    if (dartMatchArea) {
+        dartMatchArea.parentNode.removeChild(dartMatchArea);
+    }
+    
+    // Cricket puanlarını sıfırla
+    gameState.cricketScores = {
+        player1: {
+            '15': 0,
+            '16': 0,
+            '17': 0,
+            '18': 0,
+            '19': 0,
+            '20': 0,
+            'bull': 0
+        },
+        player2: {
+            '15': 0,
+            '16': 0,
+            '17': 0,
+            '18': 0,
+            '19': 0,
+            '20': 0,
+            'bull': 0
+        }
+    };
+    
+    // Skorları sıfırla
+    gameState.scores = {
+        player1: 0,
+        player2: 0
+    };
+    
+    // Oyun durumunu sıfırla
+    gameState.gameOver = false;
+    gameState.throwsLeft = 3;
+    gameState.dartsOnBoard = [];
+    
+    // Karakter seçim ekranını göster
+    document.querySelector('.player-grid-container').style.display = 'block';
+    document.querySelector('.instructions').style.display = 'block';
+    document.querySelector('.start-button').style.display = 'block';
+    
+    // Oyuncu seçimlerini koru ama aktif oyuncuyu sıfırla
+    gameState.activePlayer = 1;
+    
+    // Oyuncu kart seçimlerini güncelle
+    updatePlayerCardSelections();
+    updateActivePlayerHighlight();
+    
+    // Başlat butonunu aktifleştir
+    startMatchButton.disabled = false;
+    startMatchButton.classList.add('active');
 }
 
 // Mobil kontrolleri ayarla
