@@ -1214,6 +1214,57 @@ body {
     }
 }
 
+/* Minimal tasarım için oyuncu bilgileri */
+.player-info-compact {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.player-info-text {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: 10px;
+    flex: 1;
+}
+
+.player-dart-portrait {
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    background-size: cover;
+    background-position: center;
+    border: 2px solid #fff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.player1-area .player-dart-portrait {
+    border-color: #0066ff;
+    box-shadow: 0 0 10px rgba(0, 102, 255, 0.5);
+}
+
+.player2-area .player-dart-portrait {
+    border-color: #ff0000;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
+.player-dart-name {
+    font-size: 16px;
+    text-shadow: 1px 1px 2px #000;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.throws-left {
+    font-size: 14px;
+    color: #ffcc00;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 3px 8px;
+    border-radius: 12px;
+}
+
 /* Dart maçı alanı */
 .dart-match-area {
     display: flex;
@@ -1329,6 +1380,7 @@ body {
     margin: 5px 0;
     width: 100%;
     max-width: 600px;
+    transition: transform 0.5s ease, opacity 0.5s ease;
 }
 
 .player1-area {
@@ -1341,55 +1393,38 @@ body {
     border: 2px solid #ff0000;
 }
 
-/* Minimal tasarım için oyuncu bilgileri */
-.player-info-compact {
-    display: flex;
-    align-items: center;
-    width: 100%;
+.player-active {
+    transform: translateX(0);
+    opacity: 1;
 }
 
-.player-info-text {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-left: 10px;
-    flex: 1;
+.player-inactive {
+    transform: translateX(-100%);
+    opacity: 0;
 }
 
-.player-dart-portrait {
-    width: 50px;
-    height: 50px;
-    border-radius: 5px;
-    background-size: cover;
-    background-position: center;
-    border: 2px solid #fff;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+.player-waiting {
+    transform: translateX(100%);
+    opacity: 0;
 }
 
-.player1-area .player-dart-portrait {
-    border-color: #0066ff;
-    box-shadow: 0 0 10px rgba(0, 102, 255, 0.5);
-}
-
-.player2-area .player-dart-portrait {
-    border-color: #ff0000;
-    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-}
-
-.player-dart-name {
-    font-size: 16px;
-    text-shadow: 1px 1px 2px #000;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.throws-left {
-    font-size: 14px;
+/* Atılan sayı animasyonu */
+.hit-number {
+    position: absolute;
+    font-size: 32px;
+    font-weight: bold;
     color: #ffcc00;
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 3px 8px;
-    border-radius: 12px;
+    text-shadow: 2px 2px 4px #000;
+    z-index: 100;
+    animation: hitNumberPulse 1.5s ease-out forwards;
+}
+
+@keyframes hitNumberPulse {
+    0% { transform: scale(0.5); opacity: 0; }
+    20% { transform: scale(1.5); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 1; }
+    70% { transform: scale(1.5); opacity: 1; }
+    100% { transform: scale(2); opacity: 0; }
 }
 
 /* Karakter Atış Alanı */
