@@ -30,7 +30,9 @@ const gameState = {
         player2: 0
     },
     gameOver: false,
-    focusedPlayerIndex: 0 // Klavye navigasyonu için odaklanılan oyuncu
+    focusedPlayerIndex: 0, // Klavye navigasyonu için odaklanılan oyuncu
+    isThrowingDart: false, // Dart atma işlemi sırasında true olacak
+    isLoading: false // Yükleme durumu
 };
 
 // Dart oyuncuları verileri
@@ -141,14 +143,32 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Başlat butonuna tıklama olayı ekle
     document.getElementById('start-match').addEventListener('click', function() {
-        if (!this.disabled && gameState.player1 && gameState.player2) {
-            playSound(sounds.fight);
+        if (gameState.player1 && gameState.player2 && !gameState.isLoading) {
+            // Yükleme durumunu true yap
+            gameState.isLoading = true;
             
-            // Fight animasyonu
-            showFightAnimation();
+            // Yükleme animasyonunu göster
+            showLoadingAnimation();
+            
+            // Oyuncu seçim ekranını gizle
+            document.querySelector('.player-grid-container').style.display = 'none';
+            document.querySelector('.instructions').style.display = 'none';
+            document.querySelector('.start-button').style.display = 'none';
+            
+            // Yükleme süreci simülasyonu (gerçek uygulamada asset yükleme işlemleri burada yapılır)
+            simulateLoading(() => {
+                // Yükleme tamamlandığında
+                hideLoadingAnimation();
+                
+                // Fight animasyonunu göster
+                showFightAnimation();
+                
+                // Yükleme durumunu false yap
+                gameState.isLoading = false;
+            });
         } else {
-            // Eğer oyuncular seçilmemişse uyarı göster
-            alert("Lütfen önce iki oyuncu seçin!");
+            // Oyuncu seçilmediğinde uyarı
+            showMessage('Lütfen her iki oyuncu için de karakter seçin!');
         }
     });
     
@@ -740,7 +760,11 @@ function updatePlayerAnimations() {
 
 // Dart at
 function throwDart() {
-    if (gameState.throwsLeft <= 0 || gameState.gameOver) return;
+    // Eğer atış hakkı yoksa, oyun bittiyse veya zaten dart atma işlemi devam ediyorsa işlemi engelle
+    if (gameState.throwsLeft <= 0 || gameState.gameOver || gameState.isThrowingDart) return;
+    
+    // Dart atma işleminin başladığını belirt
+    gameState.isThrowingDart = true;
     
     // Atış animasyonu
     const activeCharacter = document.getElementById('active-character');
@@ -797,7 +821,12 @@ function throwDart() {
             if (gameState.throwsLeft <= 0) {
                 setTimeout(() => {
                     startDartThrowing();
+                    // Dart atma işleminin bittiğini belirt
+                    gameState.isThrowingDart = false;
                 }, 1500);
+            } else {
+                // Dart atma işleminin bittiğini belirt
+                gameState.isThrowingDart = false;
             }
         }, 500);
     }, 300);
@@ -835,8 +864,8 @@ function showHitNumber(number, multiplier) {
     const randomX = Math.random() * 60 - 30;
     const randomY = Math.random() * 60 - 30;
     
-    hitNumber.style.left = `calc(50% + ${randomX}px)`;
-    hitNumber.style.top = `calc(50% + ${randomY}px)`;
+    hitNumber.style.left = `${randomX}px`;
+    hitNumber.style.top = `${randomY}px`;
     
     dartBoard.appendChild(hitNumber);
     
@@ -1368,6 +1397,8 @@ function resetGameAndReturnToSelection() {
     gameState.gameOver = false;
     gameState.throwsLeft = 3;
     gameState.dartsOnBoard = [];
+    gameState.isThrowingDart = false; // Dart atma işlemi durumunu sıfırla
+    gameState.isLoading = false; // Yükleme durumunu sıfırla
     
     // Karakter seçim ekranını göster
     document.querySelector('.player-grid-container').style.display = 'block';
@@ -1396,14 +1427,17 @@ function setupMobileControls() {
     
     // Karakter tıklandığında dart atma
     activeCharacter.addEventListener('click', () => {
-        if (gameState.throwsLeft > 0 && !gameState.gameOver) {
+        // Eğer atış hakkı varsa, oyun bitmemişse ve zaten dart atma işlemi devam etmiyorsa
+        if (gameState.throwsLeft > 0 && !gameState.gameOver && !gameState.isThrowingDart) {
             throwDart();
         }
     });
     
     // Dokunmatik cihazlar için hover efekti
     activeCharacter.addEventListener('touchstart', function() {
-        this.classList.add('character-hover');
+        if (!gameState.isThrowingDart) {
+            this.classList.add('character-hover');
+        }
     });
     
     activeCharacter.addEventListener('touchend', function() {
@@ -1418,4 +1452,54 @@ function initCricketScoring() {
     // Skorları sıfırla
     document.getElementById('player1-score').textContent = '0';
     document.getElementById('player2-score').textContent = '0';
+}
+
+// Yükleme animasyonunu göster
+function showLoadingAnimation() {
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.className = 'loading-overlay';
+    loadingOverlay.id = 'loading-overlay';
+    
+    loadingOverlay.innerHTML = `
+        <div class="loading-spinner"></div>
+        <div class="loading-text">OYUN YÜKLENİYOR</div>
+        <div class="loading-progress">
+            <div class="loading-bar" id="loading-bar"></div>
+        </div>
+    `;
+    
+    document.body.appendChild(loadingOverlay);
+}
+
+// Yükleme animasyonunu gizle
+function hideLoadingAnimation() {
+    const loadingOverlay = document.getElementById('loading-overlay');
+    if (loadingOverlay) {
+        loadingOverlay.style.opacity = '0';
+        loadingOverlay.style.transition = 'opacity 0.5s ease';
+        
+        setTimeout(() => {
+            if (loadingOverlay.parentNode) {
+                loadingOverlay.parentNode.removeChild(loadingOverlay);
+            }
+        }, 500);
+    }
+}
+
+// Yükleme işlemini simüle et
+function simulateLoading(callback) {
+    const loadingBar = document.getElementById('loading-bar');
+    let progress = 0;
+    
+    const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 100) progress = 100;
+        
+        loadingBar.style.width = `${progress}%`;
+        
+        if (progress >= 100) {
+            clearInterval(interval);
+            setTimeout(callback, 500); // Yükleme tamamlandıktan sonra kısa bir gecikme
+        }
+    }, 300);
 }
