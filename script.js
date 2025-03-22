@@ -37,7 +37,7 @@ const gameState = {
 const players = [
     { id: 1, name: 'Fetih', average: 95.6, checkout: 48, accuracy: 92, image: 'fetih.png' },
     { id: 2, name: 'Göktürk', average: 93.2, checkout: 45, accuracy: 89, image: 'gokturk.png' },
-    { id: 3, name: 'Ömer', average: 97.8, checkout: 52, accuracy: 94, image: 'ömer.jpg' },
+    { id: 3, name: 'Ömer', average: 97.8, checkout: 52, accuracy: 94, image: 'ömer.png' },
     { id: 4, name: 'Umut', average: 91.5, checkout: 42, accuracy: 88, image: 'umut.jpg' },
     { id: 5, name: 'Nihat', average: 94.3, checkout: 47, accuracy: 90, image: 'nihat.png' },
     { id: 6, name: 'Onat', average: 92.7, checkout: 44, accuracy: 87, image: 'onat.jpg' },
@@ -49,7 +49,7 @@ const players = [
     { id: 12, name: 'Burcu', average: 94.7, checkout: 48, accuracy: 90, image: 'burcu.jpg' },
     { id: 13, name: 'Selda', average: 93.5, checkout: 45, accuracy: 88, image: 'selda.jpg' },
     { id: 14, name: 'Derya', average: 96.3, checkout: 51, accuracy: 93, image: 'derya.jpg' },
-    { id: 15, name: 'Büşra', average: 91.9, checkout: 42, accuracy: 86, image: 'büşra.jpg' },
+    { id: 15, name: 'Büşra', average: 91.9, checkout: 42, accuracy: 86, image: 'busra.png' },
     { id: 16, name: 'Yaprak', average: 95.0, checkout: 47, accuracy: 91, image: 'yaprak.jpg' },
     { id: 17, name: 'Ekin', average: 92.5, checkout: 44, accuracy: 87, image: 'ekin.png' },
     { id: 18, name: 'Sabahi', average: 94.1, checkout: 46, accuracy: 89, image: 'sabahi.jpg' },
@@ -389,11 +389,25 @@ function showFightAnimation() {
 
 // Dart maçını başlat
 function startDartMatch() {
+    // Başlat butonunu pasif yap ve metnini değiştir
+    const startButton = document.getElementById('start-match');
+    startButton.disabled = true;
+    startButton.textContent = 'OYUN BAŞLADI';
+    startButton.classList.add('game-started');
+    
     // Dart maçı alanını oluştur
     createDartMatchArea();
     
     // Dart atma sırasını başlat
     startDartThrowing();
+    
+    // Oyun alanına doğru kaydır
+    setTimeout(() => {
+        const dartMatchArea = document.querySelector('.dart-match-area');
+        if (dartMatchArea) {
+            dartMatchArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, 500);
 }
 
 // Oyuncu seçimi için Street Fighter tarzı ses efektleri ve animasyonlar

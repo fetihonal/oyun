@@ -443,6 +443,19 @@ body {
     opacity: 1;
 }
 
+.start-button.game-started {
+    background-color: #2ecc71;
+    border: 2px solid #27ae60;
+    box-shadow: 0 5px 0 #27ae60, 0 0 20px rgba(46, 204, 113, 0.5);
+    color: #fff;
+    cursor: default;
+    animation: pulse 2s infinite;
+}
+
+.start-button.game-started:disabled {
+    opacity: 1;
+}
+
 /* Oyuncu Grid */
 .player-grid-container {
     margin-bottom: 30px;
