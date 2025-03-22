@@ -393,6 +393,15 @@ function createDartMatchArea() {
     dartBoard.innerHTML = `
         <div class="dart-board-rings">
             <div class="bullseye"></div>
+            <div class="cricket-numbers">
+                <div class="cricket-number n15">15</div>
+                <div class="cricket-number n16">16</div>
+                <div class="cricket-number n17">17</div>
+                <div class="cricket-number n18">18</div>
+                <div class="cricket-number n19">19</div>
+                <div class="cricket-number n20">20</div>
+                <div class="cricket-number bull">B</div>
+            </div>
         </div>
     `;
     
@@ -402,10 +411,41 @@ function createDartMatchArea() {
     player1Area.innerHTML = `
         <div class="player-score">
             <div class="score-label">SKOR</div>
-            <div class="score-value" id="player1-score">501</div>
+            <div class="score-value" id="player1-score">0</div>
         </div>
         <div class="player-dart-portrait" id="player1-dart-portrait"></div>
         <div class="player-dart-name">${gameState.player1.name}</div>
+        <div class="cricket-scoreboard" id="player1-cricket">
+            <div class="cricket-row">
+                <div class="cricket-label">15:</div>
+                <div class="cricket-marks" id="p1-15"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">16:</div>
+                <div class="cricket-marks" id="p1-16"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">17:</div>
+                <div class="cricket-marks" id="p1-17"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">18:</div>
+                <div class="cricket-marks" id="p1-18"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">19:</div>
+                <div class="cricket-marks" id="p1-19"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">20:</div>
+                <div class="cricket-marks" id="p1-20"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">Bull:</div>
+                <div class="cricket-marks" id="p1-bull"></div>
+            </div>
+        </div>
+        <div class="throws-left" id="p1-throws">Atış: 3</div>
     `;
     
     const player2Area = document.createElement('div');
@@ -413,10 +453,41 @@ function createDartMatchArea() {
     player2Area.innerHTML = `
         <div class="player-score">
             <div class="score-label">SKOR</div>
-            <div class="score-value" id="player2-score">501</div>
+            <div class="score-value" id="player2-score">0</div>
         </div>
         <div class="player-dart-portrait" id="player2-dart-portrait"></div>
         <div class="player-dart-name">${gameState.player2.name}</div>
+        <div class="cricket-scoreboard" id="player2-cricket">
+            <div class="cricket-row">
+                <div class="cricket-label">15:</div>
+                <div class="cricket-marks" id="p2-15"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">16:</div>
+                <div class="cricket-marks" id="p2-16"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">17:</div>
+                <div class="cricket-marks" id="p2-17"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">18:</div>
+                <div class="cricket-marks" id="p2-18"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">19:</div>
+                <div class="cricket-marks" id="p2-19"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">20:</div>
+                <div class="cricket-marks" id="p2-20"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">Bull:</div>
+                <div class="cricket-marks" id="p2-bull"></div>
+            </div>
+        </div>
+        <div class="throws-left" id="p2-throws">Atış: 0</div>
     `;
     
     // Dart atma butonu
@@ -461,16 +532,31 @@ function createDartMatchArea() {
     // Oyun durumunu güncelle
     gameState.dartMatch = {
         currentPlayer: 1,
-        player1Score: 501,
-        player2Score: 501,
+        player1Score: 0,
+        player2Score: 0,
         throwsLeft: 3,
-        gameOver: false
+        gameOver: false,
+        // Cricket için gerekli veriler
+        player1Cricket: {
+            15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0, bull: 0
+        },
+        player2Cricket: {
+            15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0, bull: 0
+        },
+        dartsThrown: []
     };
 }
 
 // Dart atma sırasını başlat
 function startDartThrowing() {
     updateCurrentPlayerHighlight();
+    updateThrowsLeft();
+}
+
+// Atış sayısını güncelle
+function updateThrowsLeft() {
+    document.getElementById('p1-throws').textContent = `Atış: ${gameState.dartMatch.currentPlayer === 1 ? gameState.dartMatch.throwsLeft : 0}`;
+    document.getElementById('p2-throws').textContent = `Atış: ${gameState.dartMatch.currentPlayer === 2 ? gameState.dartMatch.throwsLeft : 0}`;
 }
 
 // Aktif oyuncuyu vurgula
@@ -498,7 +584,13 @@ function throwDart() {
     // Dart oku oluştur
     const dart = document.createElement('div');
     dart.className = 'dart';
-    dart.style.backgroundColor = currentPlayer === 1 ? '#0066ff' : '#ff0000';
+    
+    // Oyuncuya göre dart oku stili
+    if (currentPlayer === 1) {
+        dart.innerHTML = `<div class="dart-shaft"></div><div class="dart-flight blue-flight"></div>`;
+    } else {
+        dart.innerHTML = `<div class="dart-shaft"></div><div class="dart-flight red-flight"></div>`;
+    }
     
     // Dart okunu oyuncunun yanına yerleştir
     playerArea.appendChild(dart);
@@ -519,8 +611,47 @@ function throwDart() {
     const maxDeviation = 50 * (1 - accuracy); // İsabet düşükse sapma yüksek
     const randomDeviation = () => (Math.random() * 2 - 1) * maxDeviation;
     
-    const targetX = boardCenterX + randomDeviation();
-    const targetY = boardCenterY + randomDeviation();
+    // Cricket sayılarından birini hedefle
+    const cricketNumbers = [15, 16, 17, 18, 19, 20, 'bull'];
+    
+    // Akıllı hedefleme: Henüz kapatılmamış sayıları öncelikle hedefle
+    const playerCricket = currentPlayer === 1 ? gameState.dartMatch.player1Cricket : gameState.dartMatch.player2Cricket;
+    const opponentCricket = currentPlayer === 1 ? gameState.dartMatch.player2Cricket : gameState.dartMatch.player1Cricket;
+    
+    // Kapatılmamış sayıları bul
+    const unclosedNumbers = cricketNumbers.filter(num => playerCricket[num] < 3);
+    
+    // Rakibin kapatmadığı ve bizim kapattığımız sayıları bul (puan kazanmak için)
+    const scoringNumbers = cricketNumbers.filter(num => playerCricket[num] >= 3 && opponentCricket[num] < 3);
+    
+    let targetNumber;
+    
+    if (unclosedNumbers.length > 0) {
+        // Önce kendi kapatılmamış sayılarını hedefle
+        targetNumber = unclosedNumbers[Math.floor(Math.random() * unclosedNumbers.length)];
+    } else if (scoringNumbers.length > 0) {
+        // Tüm sayılar kapatıldıysa, puan kazanmak için rakibin kapatmadığı sayıları hedefle
+        targetNumber = scoringNumbers[Math.floor(Math.random() * scoringNumbers.length)];
+    } else {
+        // Herkes her şeyi kapattıysa rastgele bir sayı seç
+        targetNumber = cricketNumbers[Math.floor(Math.random() * cricketNumbers.length)];
+    }
+    
+    // Hedef sayıya göre pozisyon belirle
+    let targetX, targetY;
+    
+    if (targetNumber === 'bull') {
+        // Bullseye hedefle
+        targetX = boardCenterX + randomDeviation() * 0.3;
+        targetY = boardCenterY + randomDeviation() * 0.3;
+    } else {
+        // Diğer sayıları hedefle
+        const angle = (targetNumber - 13) * (Math.PI / 10); // Sayılara göre açı
+        const distance = boardRect.width * 0.35 + randomDeviation() * 0.2; // Tahtanın ortasından uzaklık
+        
+        targetX = boardCenterX + Math.cos(angle) * distance;
+        targetY = boardCenterY + Math.sin(angle) * distance;
+    }
     
     // Başlangıç pozisyonu (oyuncunun yanından)
     const startX = currentPlayer === 1 ? 
@@ -577,16 +708,53 @@ function throwDart() {
             }
             
             // Puanı hesapla ve güncelle
-            calculateScore(targetX, targetY, boardRect);
+            calculateCricketScore(targetNumber, targetX, targetY, boardRect);
             
             // Efekti kaldır
             setTimeout(() => {
                 document.body.removeChild(hitEffect);
             }, 300);
             
-            // Dart okunu kaldır
+            // Dart okunu tahtada bırak
             setTimeout(() => {
+                // Dart okunu tahtaya sabitlemek için pozisyonunu ayarla
+                const dartClone = dart.cloneNode(true);
+                dartClone.style.position = 'absolute';
+                dartClone.style.left = `${targetX - boardRect.left}px`;
+                dartClone.style.top = `${targetY - boardRect.top}px`;
+                dartClone.style.transform = `rotate(${Math.random() * 360}deg)`;
+                dartClone.style.zIndex = '5';
+                dartBoard.appendChild(dartClone);
+                
+                // Atılan dartları kaydet
+                gameState.dartMatch.dartsThrown.push({
+                    player: currentPlayer,
+                    x: targetX - boardRect.left,
+                    y: targetY - boardRect.top,
+                    element: dartClone
+                });
+                
+                // Orijinal dartı kaldır
                 document.body.removeChild(dart);
+                
+                // Atış sayısını azalt
+                gameState.dartMatch.throwsLeft--;
+                updateThrowsLeft();
+                
+                // Atış bittiyse sırayı değiştir
+                if (gameState.dartMatch.throwsLeft === 0) {
+                    // Sırayı diğer oyuncuya ver
+                    gameState.dartMatch.currentPlayer = gameState.dartMatch.currentPlayer === 1 ? 2 : 1;
+                    gameState.dartMatch.throwsLeft = 3;
+                    updateCurrentPlayerHighlight();
+                    updateThrowsLeft();
+                    
+                    // Tahtadaki dartları temizle
+                    setTimeout(clearDartsFromBoard, 1000);
+                }
+                
+                // Oyun bitti mi kontrol et
+                checkGameOver();
             }, 100);
         }
     }
@@ -594,8 +762,23 @@ function throwDart() {
     animateDart();
 }
 
-// Puanı hesapla
-function calculateScore(hitX, hitY, boardRect) {
+// Tahtadaki dartları temizle
+function clearDartsFromBoard() {
+    // En son 3 atışı kaldır
+    const dartsToRemove = gameState.dartMatch.dartsThrown.slice(-3);
+    
+    dartsToRemove.forEach(dart => {
+        if (dart.element && dart.element.parentNode) {
+            dart.element.parentNode.removeChild(dart.element);
+        }
+    });
+    
+    // Kaldırılan dartları listeden çıkar
+    gameState.dartMatch.dartsThrown = gameState.dartMatch.dartsThrown.slice(0, -3);
+}
+
+// Cricket puanını hesapla
+function calculateCricketScore(targetNumber, hitX, hitY, boardRect) {
     const boardCenterX = boardRect.left + boardRect.width / 2;
     const boardCenterY = boardRect.top + boardRect.height / 2;
     
@@ -608,108 +791,218 @@ function calculateScore(hitX, hitY, boardRect) {
     // Tahtanın yarıçapı
     const boardRadius = boardRect.width / 2;
     
-    // Uzaklığa göre puan hesapla
-    let points = 0;
+    // Uzaklığa göre çarpan belirle
+    let multiplier = 1;
     
-    if (distance < boardRadius * 0.1) {
-        // Bullseye
-        points = 50;
-    } else if (distance < boardRadius * 0.2) {
-        // İç bull
-        points = 25;
-    } else {
-        // Diğer bölgeler (1-20 arası)
-        const section = Math.floor(Math.random() * 20) + 1;
+    if (distance > boardRadius * 0.85 && distance < boardRadius * 0.95) {
+        // Dış çift
+        multiplier = 2;
+    } else if (distance > boardRadius * 0.5 && distance < boardRadius * 0.6) {
+        // İç üçlü
+        multiplier = 3;
+    }
+    
+    // İsabet eden sayı ve çarpanı göster
+    showHitNumber(targetNumber, multiplier);
+    
+    // Cricket puanını güncelle
+    updateCricketScore(targetNumber, multiplier);
+}
+
+// İsabet eden sayıyı göster
+function showHitNumber(number, multiplier) {
+    const hitText = document.createElement('div');
+    hitText.className = 'hit-text';
+    hitText.textContent = `${number} x${multiplier}`;
+    hitText.style.color = multiplier === 3 ? '#ff0000' : multiplier === 2 ? '#00ff00' : '#ffffff';
+    
+    document.body.appendChild(hitText);
+    
+    // Animasyon
+    setTimeout(() => {
+        hitText.style.opacity = '0';
+        hitText.style.transform = 'translateY(-50px)';
         
-        // Uzaklığa göre çarpan belirle
-        if (distance > boardRadius * 0.85 && distance < boardRadius * 0.95) {
-            // Dış çift
-            points = section * 2;
-        } else if (distance > boardRadius * 0.5 && distance < boardRadius * 0.6) {
-            // İç üçlü
-            points = section * 3;
-        } else {
-            // Normal bölge
-            points = section;
+        setTimeout(() => {
+            document.body.removeChild(hitText);
+        }, 1000);
+    }, 500);
+}
+
+// Cricket puanını güncelle
+function updateCricketScore(number, multiplier) {
+    const currentPlayer = gameState.dartMatch.currentPlayer;
+    const playerCricket = currentPlayer === 1 ? gameState.dartMatch.player1Cricket : gameState.dartMatch.player2Cricket;
+    const opponentCricket = currentPlayer === 1 ? gameState.dartMatch.player2Cricket : gameState.dartMatch.player1Cricket;
+    
+    // Mevcut işaretleri al
+    let currentMarks = playerCricket[number];
+    
+    // Yeni işaretleri ekle (en fazla 3 olabilir)
+    const newMarks = Math.min(currentMarks + multiplier, 3);
+    playerCricket[number] = newMarks;
+    
+    // İşaretleri göster
+    updateCricketMarks(currentPlayer, number, newMarks);
+    
+    // Puan hesapla
+    if (newMarks === 3 && currentMarks < 3) {
+        // Sayı yeni kapatıldı, kapatma animasyonu göster
+        showClosedAnimation(number, currentPlayer);
+    }
+    
+    // Eğer sayı kapatıldıysa ve rakip kapatmadıysa puan ekle
+    if (newMarks === 3 && opponentCricket[number] < 3) {
+        // Fazladan işaretler puan olarak eklenir
+        const extraMarks = (currentMarks + multiplier) - 3;
+        if (extraMarks > 0) {
+            // Puan ekle
+            const pointsToAdd = extraMarks * (number === 'bull' ? 25 : number);
+            addPoints(currentPlayer, pointsToAdd);
         }
     }
     
-    // Puanı güncelle
-    updateScore(points);
+    // Cezalı Cricket: Eğer hedeflenen sayı cricket sayısı değilse veya ıskalandıysa ceza puanı ekle
+    if (!['15', '16', '17', '18', '19', '20', 'bull'].includes(number.toString())) {
+        // Ceza puanı (rastgele 5-15 arası)
+        const penalty = Math.floor(Math.random() * 11) + 5;
+        addPoints(currentPlayer === 1 ? 2 : 1, penalty);
+        
+        // Ceza animasyonu göster
+        showPenaltyAnimation(currentPlayer, penalty);
+    }
 }
 
-// Puanı güncelle
-function updateScore(points) {
-    const currentPlayer = gameState.dartMatch.currentPlayer;
+// Ceza animasyonu göster
+function showPenaltyAnimation(player, penalty) {
+    const penaltyText = document.createElement('div');
+    penaltyText.className = 'penalty-text';
+    penaltyText.textContent = `CEZA: +${penalty}`;
+    penaltyText.style.color = '#ff0000';
     
-    // Puanı düş
-    if (currentPlayer === 1) {
-        gameState.dartMatch.player1Score -= points;
-        if (gameState.dartMatch.player1Score < 0) {
-            gameState.dartMatch.player1Score += points; // Bust durumu
-        }
+    const opponentArea = document.querySelector(`.player${player === 1 ? 2 : 1}-area`);
+    opponentArea.appendChild(penaltyText);
+    
+    // Animasyon
+    setTimeout(() => {
+        penaltyText.style.opacity = '0';
+        penaltyText.style.transform = 'scale(1.5)';
+        
+        setTimeout(() => {
+            opponentArea.removeChild(penaltyText);
+        }, 1000);
+    }, 1000);
+}
+
+// Sayı kapatma animasyonu göster
+function showClosedAnimation(number, player) {
+    const closedText = document.createElement('div');
+    closedText.className = 'closed-text';
+    closedText.textContent = `${number} KAPANDI!`;
+    closedText.style.color = player === 1 ? '#0066ff' : '#ff0000';
+    
+    const playerArea = document.querySelector(`.player${player}-area`);
+    playerArea.appendChild(closedText);
+    
+    // Animasyon
+    setTimeout(() => {
+        closedText.style.opacity = '0';
+        closedText.style.transform = 'scale(1.5)';
+        
+        setTimeout(() => {
+            playerArea.removeChild(closedText);
+        }, 1000);
+    }, 1000);
+}
+
+// Cricket işaretlerini güncelle
+function updateCricketMarks(player, number, marks) {
+    const markElement = document.getElementById(`p${player}-${number}`);
+    
+    // İşaretleri temizle
+    markElement.innerHTML = '';
+    
+    // Yeni işaretleri ekle
+    for (let i = 0; i < marks; i++) {
+        const mark = document.createElement('span');
+        mark.className = 'cricket-mark';
+        mark.innerHTML = i === 2 ? '&#10005;' : '&#47;'; // Son işaret X, diğerleri /
+        markElement.appendChild(mark);
+    }
+}
+
+// Puan ekle
+function addPoints(player, points) {
+    if (player === 1) {
+        gameState.dartMatch.player1Score += points;
         document.getElementById('player1-score').textContent = gameState.dartMatch.player1Score;
     } else {
-        gameState.dartMatch.player2Score -= points;
-        if (gameState.dartMatch.player2Score < 0) {
-            gameState.dartMatch.player2Score += points; // Bust durumu
-        }
+        gameState.dartMatch.player2Score += points;
         document.getElementById('player2-score').textContent = gameState.dartMatch.player2Score;
-    }
-    
-    // Kalan atış sayısını düşür
-    gameState.dartMatch.throwsLeft--;
-    
-    // Kazanan kontrolü
-    if (gameState.dartMatch.player1Score === 0 || gameState.dartMatch.player2Score === 0) {
-        endGame();
-        return;
-    }
-    
-    // Atış sırası bittiyse diğer oyuncuya geç
-    if (gameState.dartMatch.throwsLeft === 0) {
-        gameState.dartMatch.throwsLeft = 3;
-        gameState.dartMatch.currentPlayer = currentPlayer === 1 ? 2 : 1;
-        updateCurrentPlayerHighlight();
     }
 }
 
-// Oyunu bitir
-function endGame() {
-    gameState.dartMatch.gameOver = true;
+// Oyun bitti mi kontrol et
+function checkGameOver() {
+    const p1Cricket = gameState.dartMatch.player1Cricket;
+    const p2Cricket = gameState.dartMatch.player2Cricket;
     
-    // Kazananı belirle
-    const winner = gameState.dartMatch.player1Score === 0 ? gameState.player1 : gameState.player2;
+    // Tüm sayılar kapatıldı mı kontrol et
+    const p1Closed = Object.values(p1Cricket).every(marks => marks >= 3);
+    const p2Closed = Object.values(p2Cricket).every(marks => marks >= 3);
     
-    // Kazanan animasyonu
-    const winnerOverlay = document.createElement('div');
-    winnerOverlay.className = 'winner-overlay';
-    document.body.appendChild(winnerOverlay);
-    
-    setTimeout(() => {
-        const winnerText = document.createElement('div');
-        winnerText.className = 'winner-text';
-        winnerText.innerHTML = `
-            <div class="winner-name">${winner.name}</div>
-            <div class="winner-title">KAZANDI!</div>
-        `;
-        winnerOverlay.appendChild(winnerText);
+    if ((p1Closed || p2Closed) && gameState.dartMatch.player1Score !== gameState.dartMatch.player2Score) {
+        // Oyun bitti
+        gameState.dartMatch.gameOver = true;
         
-        // Zafer sesi çal
-        playSound(sounds.fight);
+        // Kazananı belirle
+        let winner;
+        if (p1Closed && gameState.dartMatch.player1Score >= gameState.dartMatch.player2Score) {
+            winner = gameState.player1.name;
+        } else if (p2Closed && gameState.dartMatch.player2Score >= gameState.dartMatch.player1Score) {
+            winner = gameState.player2.name;
+        } else if (gameState.dartMatch.player1Score > gameState.dartMatch.player2Score) {
+            winner = gameState.player1.name;
+        } else {
+            winner = gameState.player2.name;
+        }
+        
+        // Kazanan animasyonu göster
+        showWinnerAnimation(winner);
         
         // Yeni oyun butonunu göster
-        document.getElementById('throw-dart-button').style.display = 'none';
         document.getElementById('new-game-button').style.display = 'block';
-        
-        // 3 saniye sonra kaldır
+        document.getElementById('throw-dart-button').style.display = 'none';
+    }
+}
+
+// Kazanan animasyonu göster
+function showWinnerAnimation(winner) {
+    const winnerOverlay = document.createElement('div');
+    winnerOverlay.className = 'winner-overlay';
+    
+    const winnerText = document.createElement('div');
+    winnerText.className = 'winner-text';
+    winnerText.textContent = `${winner} KAZANDI!`;
+    
+    winnerOverlay.appendChild(winnerText);
+    document.body.appendChild(winnerOverlay);
+    
+    // Zafer sesi çal
+    playSound(sounds.fight);
+    
+    // Titreşim efekti
+    if ('vibrate' in navigator) {
+        navigator.vibrate([100, 50, 100, 50, 200]);
+    }
+    
+    // Animasyon
+    setTimeout(() => {
+        winnerOverlay.classList.add('fade-out');
         setTimeout(() => {
-            winnerOverlay.classList.add('fade-out');
-            setTimeout(() => {
-                document.body.removeChild(winnerOverlay);
-            }, 500);
-        }, 3000);
-    }, 100);
+            document.body.removeChild(winnerOverlay);
+        }, 1000);
+    }, 3000);
 }
 
 // Oyunu sıfırla
