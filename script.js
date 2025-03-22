@@ -1205,25 +1205,33 @@ function checkGameOver() {
     const p1Closed = Object.values(p1Cricket).every(marks => marks >= 3);
     const p2Closed = Object.values(p2Cricket).every(marks => marks >= 3);
     
-    if ((p1Closed || p2Closed) && gameState.scores.player1 !== gameState.scores.player2) {
-        // Oyun bitti
+    // Amerikan Cricket kurallarına göre:
+    // 1. Tüm sayıları kapatan VE
+    // 2. En yüksek puana sahip olan oyuncu kazanır
+    
+    // Eğer her iki oyuncu da tüm sayıları kapattıysa, puanı yüksek olan kazanır
+    if (p1Closed && p2Closed) {
         gameState.gameOver = true;
         
-        // Kazananı belirle
-        let winner;
-        if (p1Closed && gameState.scores.player1 >= gameState.scores.player2) {
-            winner = gameState.player1.name;
-        } else if (p2Closed && gameState.scores.player2 >= gameState.scores.player1) {
-            winner = gameState.player2.name;
-        } else if (gameState.scores.player1 > gameState.scores.player2) {
-            winner = gameState.player1.name;
+        if (gameState.scores.player1 > gameState.scores.player2) {
+            showWinnerAnimation(gameState.player1.name);
+        } else if (gameState.scores.player2 > gameState.scores.player1) {
+            showWinnerAnimation(gameState.player2.name);
         } else {
-            winner = gameState.player2.name;
+            // Beraberlik durumu - nadir de olsa olabilir
+            showTieAnimation();
         }
-        
-        // Kazanan animasyonu göster
-        showWinnerAnimation(winner);
     }
+    // Eğer sadece bir oyuncu tüm sayıları kapattıysa VE puanı diğer oyuncudan yüksekse kazanır
+    else if (p1Closed && gameState.scores.player1 > gameState.scores.player2) {
+        gameState.gameOver = true;
+        showWinnerAnimation(gameState.player1.name);
+    }
+    else if (p2Closed && gameState.scores.player2 > gameState.scores.player1) {
+        gameState.gameOver = true;
+        showWinnerAnimation(gameState.player2.name);
+    }
+    // Diğer durumlar - oyun devam eder
 }
 
 // Kazanan animasyonu göster
@@ -1273,6 +1281,47 @@ function showWinnerAnimation(winner) {
     document.getElementById('play-again-button').addEventListener('click', () => {
         // Kazanan ekranını kapat
         document.body.removeChild(winnerOverlay);
+        
+        // Oyunu sıfırla ve karakter seçim ekranına dön
+        resetGameAndReturnToSelection();
+    });
+}
+
+// Beraberlik durumu için animasyon
+function showTieAnimation() {
+    const tieOverlay = document.createElement('div');
+    tieOverlay.className = 'winner-overlay';
+    
+    const tieText = document.createElement('div');
+    tieText.className = 'winner-text';
+    tieText.textContent = `BERABERE!`;
+    
+    const tieDetails = document.createElement('div');
+    tieDetails.className = 'winner-details';
+    
+    // Beraberlik detaylarını göster
+    tieDetails.innerHTML = `
+        <div class="winner-score">Skor: ${gameState.scores.player1} - ${gameState.scores.player2}</div>
+        <div class="winner-stats">İki oyuncu da tüm sayıları kapattı ve aynı puana sahip!</div>
+        <button id="play-again-button" class="play-again-button">TEKRAR OYNA</button>
+    `;
+    
+    tieOverlay.appendChild(tieText);
+    tieOverlay.appendChild(tieDetails);
+    document.body.appendChild(tieOverlay);
+    
+    // Ses çal
+    playSound(sounds.win);
+    
+    // Titreşim efekti
+    if ('vibrate' in navigator) {
+        navigator.vibrate([100, 50, 100, 50, 200]);
+    }
+    
+    // Tekrar oyna butonuna tıklama olayı ekle
+    document.getElementById('play-again-button').addEventListener('click', () => {
+        // Beraberlik ekranını kapat
+        document.body.removeChild(tieOverlay);
         
         // Oyunu sıfırla ve karakter seçim ekranına dön
         resetGameAndReturnToSelection();
