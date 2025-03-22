@@ -38,7 +38,7 @@ const players = [
     { id: 1, name: 'Fetih', average: 95.6, checkout: 48, accuracy: 92, image: 'fetih.png' },
     { id: 2, name: 'Göktürk', average: 93.2, checkout: 45, accuracy: 89, image: 'gokturk.png' },
     { id: 3, name: 'Ömer', average: 97.8, checkout: 52, accuracy: 94, image: 'ömer.png' },
-    { id: 4, name: 'Umut', average: 91.5, checkout: 42, accuracy: 88, image: 'umut.jpg' },
+    { id: 4, name: 'Umut', average: 91.5, checkout: 42, accuracy: 88, image: 'umut.png' },
     { id: 5, name: 'Nihat', average: 94.3, checkout: 47, accuracy: 90, image: 'nihat.png' },
     { id: 6, name: 'Onat', average: 92.7, checkout: 44, accuracy: 87, image: 'onat.jpg' },
     { id: 7, name: 'Ongun', average: 96.1, checkout: 50, accuracy: 91, image: 'ongun.jpg' },
@@ -71,6 +71,12 @@ const sounds = {
     // Arka plan müzikleri
     selectionMusic: new Audio('sounds/cps2-guile-stage.mp3'),
     gameMusic: new Audio('sounds/street-fighter-theme.mp3')
+};
+
+// Görsel efektler
+const effects = {
+    flame: 'images/flame.png',
+    lightning: 'images/lightning.png'
 };
 
 // Ses çalma fonksiyonu - bitmesini beklemeden çalar
@@ -770,6 +776,12 @@ function throwDart() {
                 showHitNumber(result.number, result.multiplier);
                 updateCricketScore(result.number, result.multiplier);
                 
+                // Bullseye geldiğinde alev efekti göster
+                if (result.isBullseye || result.number === 'bull') {
+                    console.log("Bull geldi! Alev efekti gösteriliyor...");
+                    showEffect('flame', 'bull', gameState.activePlayer);
+                }
+                
                 // Başarı animasyonunu kaldır
                 setTimeout(() => {
                     activeCharacter.classList.remove('character-success');
@@ -909,7 +921,14 @@ function calculateDartHit() {
     
     // Hedef sayı (Cricket için 15-20 ve bull)
     const cricketNumbers = [15, 16, 17, 18, 19, 20, 'bull'];
-    const targetNumber = cricketNumbers[Math.floor(Math.random() * cricketNumbers.length)];
+    
+    // Bull gelme olasılığını artır (test için)
+    let targetNumber;
+    if (Math.random() < 0.3) { // %30 ihtimalle bull
+        targetNumber = 'bull';
+    } else {
+        targetNumber = cricketNumbers[Math.floor(Math.random() * cricketNumbers.length)];
+    }
     
     // Hedef konumu
     let targetX, targetY;
@@ -955,12 +974,16 @@ function calculateDartHit() {
     // Iskaladı mı kontrol et
     const hit = distance < boardRadius;
     
+    // Bull geldiğinde özel efekt kontrolü - daha geniş bir aralık kullanıyoruz
+    const isBullseye = hit && targetNumber === 'bull' && distance < boardRadius * 0.25;
+    
     return {
         hit: hit,
         x: hitX,
         y: hitY,
         number: targetNumber,
-        multiplier: multiplier
+        multiplier: multiplier,
+        isBullseye: isBullseye
     };
 }
 
@@ -1029,6 +1052,9 @@ function updateCricketScore(number, multiplier) {
     if (newMarks === 3 && currentMarks < 3) {
         // Sayı yeni kapatıldı, kapatma animasyonu göster
         showClosedAnimation(number, gameState.activePlayer);
+        
+        // Sayı kapatıldığında şimşek efekti göster
+        showEffect('lightning', number, gameState.activePlayer);
     }
     
     // Eğer sayı kapatıldıysa ve rakip kapatmadıysa puan ekle
@@ -1098,6 +1124,77 @@ function showClosedAnimation(number, player) {
             }
         }, 1000);
     }, 1000);
+}
+
+// Görsel efekt göster (alev veya şimşek)
+function showEffect(effectType, number, player) {
+    console.log(`${effectType} efekti gösteriliyor: ${number} için, oyuncu: ${player}`);
+    
+    const dartBoardArea = document.querySelector('.dart-board-area');
+    const dartBoard = document.querySelector('.dart-board');
+    const boardRect = dartBoard.getBoundingClientRect();
+    
+    // Efekt elementini oluştur
+    const effectElement = document.createElement('div');
+    effectElement.className = `special-effect ${effectType}-effect`;
+    dartBoardArea.appendChild(effectElement);
+    
+    // Efekt görselini ayarla
+    const effectImg = document.createElement('img');
+    effectImg.src = effects[effectType];
+    effectImg.alt = effectType;
+    effectElement.appendChild(effectImg);
+    
+    // Oyuncu rengini ayarla
+    const playerColor = player === 1 ? '#0066ff' : '#ff0000';
+    effectImg.style.filter = `drop-shadow(0 0 10px ${playerColor})`;
+    
+    // Efektin konumunu ayarla
+    let posX, posY;
+    
+    if (number === 'bull') {
+        // Bull için merkez
+        posX = boardRect.width / 2;
+        posY = boardRect.height / 2;
+    } else {
+        // Diğer sayılar için hesaplama
+        const angle = (parseInt(number) - 13) * (Math.PI / 10);
+        const distance = boardRect.width * 0.35;
+        
+        posX = boardRect.width / 2 + Math.cos(angle) * distance;
+        posY = boardRect.height / 2 + Math.sin(angle) * distance;
+    }
+    
+    // Dartın konumunu ayarla
+    if (effectType === 'flame') {
+        effectElement.style.width = '150px'; // Daha büyük
+        effectElement.style.height = '200px'; // Daha büyük
+        effectElement.style.left = `${posX - 75}px`;
+        effectElement.style.top = `${posY - 180}px`;
+        effectElement.style.zIndex = '1000'; // Daha yüksek z-index
+    } else { // lightning
+        effectElement.style.width = '180px'; // Daha büyük
+        effectElement.style.height = '240px'; // Daha büyük
+        effectElement.style.left = `${posX - 90}px`;
+        effectElement.style.top = `${posY - 180}px`;
+        effectElement.style.zIndex = '1000'; // Daha yüksek z-index
+    }
+    
+    // Animasyon
+    let duration = effectType === 'flame' ? 2000 : 1000; // Daha uzun süre
+    
+    // Efekt animasyonu
+    effectElement.style.animation = `${effectType}-animation ${duration}ms forwards`;
+    
+    // Debug için border ekle
+    // effectElement.style.border = '1px solid red';
+    
+    // Belirli bir süre sonra efekti kaldır
+    setTimeout(() => {
+        if (effectElement.parentNode) {
+            effectElement.parentNode.removeChild(effectElement);
+        }
+    }, duration);
 }
 
 // Oyun bitti mi kontrol et

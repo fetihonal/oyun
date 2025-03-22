@@ -108,6 +108,25 @@ body {
     100% { box-shadow: 0 0 10px rgba(255, 204, 0, 0.5); }
 }
 
+/* Görsel efekt animasyonları */
+@keyframes flame-animation {
+    0% { opacity: 0; transform: translateY(20px) scale(0.5); }
+    20% { opacity: 1; transform: scale(1.1); }
+    50% { opacity: 0.9; transform: translateY(-30px) scale(1.3); }
+    80% { opacity: 0.8; transform: translateY(-50px) scale(1.2); }
+    100% { opacity: 0; transform: translateY(-70px) scale(0.8); }
+}
+
+@keyframes lightning-animation {
+    0% { opacity: 0; transform: scale(0.2); }
+    10% { opacity: 0.9; transform: scale(1.1); }
+    20% { opacity: 0.3; }
+    30% { opacity: 1; transform: scale(1.2); }
+    50% { opacity: 0.9; }
+    70% { opacity: 0.8; transform: scale(1.3); }
+    100% { opacity: 0; transform: scale(1); }
+}
+
 /* Oyuncu Seçim Alanı */
 .player-selection-container {
     display: flex;
@@ -1821,4 +1840,39 @@ body {
     .cricket-mark {
         font-size: 10px;
     }
+}
+
+/* Özel efektler */
+.special-effect {
+    position: absolute;
+    z-index: 100;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.flame-effect img, .lightning-effect img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: brightness(1.2) contrast(1.2);
+}
+
+.flame-effect {
+    transform-origin: bottom center;
+}
+
+.lightning-effect {
+    transform-origin: center;
+}
+
+/* Flame efekti için ek stil */
+.flame-effect img {
+    animation: pulse 0.3s infinite alternate;
+}
+
+/* Lightning efekti için ek stil */
+.lightning-effect img {
+    animation: blink 0.2s infinite alternate;
 }
