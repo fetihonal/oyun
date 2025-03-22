@@ -459,6 +459,12 @@ function startDartMatch() {
     // Seçim ekranı müziğini durdur
     stopBackgroundMusic(sounds.selectionMusic);
     
+    // Street Fighter temasını oluştur ve aktifleştir
+    createStreetFighterTheme();
+    setTimeout(() => {
+        activateStreetFighterTheme();
+    }, 500);
+    
     // Dart maçı alanını oluştur
     createDartMatchArea();
     
@@ -524,238 +530,6 @@ function resetGame() {
     
     // Oyuncu kart seçimlerini güncelle
     updatePlayerCardSelections();
-}
-
-// Dart maçı alanını oluştur
-function createDartMatchArea() {
-    // Mevcut içeriği gizle
-    document.querySelector('.player-grid-container').style.display = 'none';
-    document.querySelector('.instructions').style.display = 'none';
-    document.querySelector('.start-button').style.display = 'none';
-    
-    // Ana dart maçı alanı
-    const dartMatchArea = document.createElement('div');
-    dartMatchArea.className = 'dart-match-area';
-    
-    // Dart tahtası
-    const dartBoard = document.createElement('div');
-    dartBoard.className = 'dart-board';
-    dartBoard.style.backgroundImage = "url('images/board.png')";
-    
-    // Oyun alanı
-    const gameArea = document.createElement('div');
-    gameArea.className = 'game-area';
-    
-    // Karakter atış alanı
-    const characterArea = document.createElement('div');
-    characterArea.className = 'character-throw-area';
-    
-    // Aktif oyuncu karakteri
-    const activeCharacter = document.createElement('div');
-    activeCharacter.className = 'active-character';
-    activeCharacter.id = 'active-character';
-    
-    // Dart tahtası alanı
-    const dartBoardArea = document.createElement('div');
-    dartBoardArea.className = 'dart-board-area';
-    dartBoardArea.appendChild(dartBoard);
-    
-    // Skor tablosu alanı - Üstte olacak
-    const scoreboardArea = document.createElement('div');
-    scoreboardArea.className = 'scoreboard-area';
-    
-    // Oyuncu 1 skor tablosu
-    const player1Scoreboard = document.createElement('div');
-    player1Scoreboard.className = 'cricket-scoreboard player1-scoreboard';
-    player1Scoreboard.innerHTML = `
-        <div class="player-name-header">${gameState.player1.name}</div>
-        <div class="cricket-scores">
-            <div class="cricket-row">
-                <div class="cricket-label">15:</div>
-                <div class="cricket-marks" id="p1-15"></div>
-            </div>
-            <div class="cricket-row">
-                <div class="cricket-label">16:</div>
-                <div class="cricket-marks" id="p1-16"></div>
-            </div>
-            <div class="cricket-row">
-                <div class="cricket-label">17:</div>
-                <div class="cricket-marks" id="p1-17"></div>
-            </div>
-            <div class="cricket-row">
-                <div class="cricket-label">18:</div>
-                <div class="cricket-marks" id="p1-18"></div>
-            </div>
-            <div class="cricket-row">
-                <div class="cricket-label">19:</div>
-                <div class="cricket-marks" id="p1-19"></div>
-            </div>
-            <div class="cricket-row">
-                <div class="cricket-label">20:</div>
-                <div class="cricket-marks" id="p1-20"></div>
-            </div>
-            <div class="cricket-row">
-                <div class="cricket-label">Bull:</div>
-                <div class="cricket-marks" id="p1-bull"></div>
-            </div>
-        </div>
-        <div class="player-score-display">
-            <div class="score-label">SKOR</div>
-            <div class="score-value" id="player1-score">0</div>
-        </div>
-    `;
-    
-    // Oyuncu 2 skor tablosu
-    const player2Scoreboard = document.createElement('div');
-    player2Scoreboard.className = 'cricket-scoreboard player2-scoreboard';
-    player2Scoreboard.innerHTML = `
-        <div class="player-name-header">${gameState.player2.name}</div>
-        <div class="cricket-scores">
-            <div class="cricket-row">
-                <div class="cricket-label">15:</div>
-                <div class="cricket-marks" id="p2-15"></div>
-            </div>
-            <div class="cricket-row">
-                <div class="cricket-label">16:</div>
-                <div class="cricket-marks" id="p2-16"></div>
-            </div>
-            <div class="cricket-row">
-                <div class="cricket-label">17:</div>
-                <div class="cricket-marks" id="p2-17"></div>
-            </div>
-            <div class="cricket-row">
-                <div class="cricket-label">18:</div>
-                <div class="cricket-marks" id="p2-18"></div>
-            </div>
-            <div class="cricket-row">
-                <div class="cricket-label">19:</div>
-                <div class="cricket-marks" id="p2-19"></div>
-            </div>
-            <div class="cricket-row">
-                <div class="cricket-label">20:</div>
-                <div class="cricket-marks" id="p2-20"></div>
-            </div>
-            <div class="cricket-row">
-                <div class="cricket-label">Bull:</div>
-                <div class="cricket-marks" id="p2-bull"></div>
-            </div>
-        </div>
-        <div class="player-score-display">
-            <div class="score-label">SKOR</div>
-            <div class="score-value" id="player2-score">0</div>
-        </div>
-    `;
-    
-    // Skor tablolarını skor alanına ekle
-    scoreboardArea.appendChild(player1Scoreboard);
-    scoreboardArea.appendChild(player2Scoreboard);
-    
-    // Oyuncu alanları - Altta olacak
-    const player1Area = document.createElement('div');
-    player1Area.className = 'player-dart-area player1-area';
-    player1Area.id = 'player1-area';
-    player1Area.innerHTML = `
-        <div class="player-info-compact">
-            <div class="player-dart-portrait" id="player1-dart-portrait"></div>
-            <div class="player-info-text">
-                <div class="player-dart-name">${gameState.player1.name}</div>
-            </div>
-        </div>
-    `;
-    
-    const player2Area = document.createElement('div');
-    player2Area.className = 'player-dart-area player2-area';
-    player2Area.id = 'player2-area';
-    player2Area.innerHTML = `
-        <div class="player-info-compact">
-            <div class="player-dart-portrait" id="player2-dart-portrait"></div>
-            <div class="player-info-text">
-                <div class="player-dart-name">${gameState.player2.name}</div>
-            </div>
-        </div>
-    `;
-    
-    // Karakter ve dart tahtasını oyun alanına ekle
-    characterArea.appendChild(activeCharacter);
-    gameArea.appendChild(characterArea);
-    gameArea.appendChild(dartBoardArea);
-    
-    // Oyuncu alanlarını, skor tablosunu ve oyun alanını dart maçı alanına ekle
-    dartMatchArea.appendChild(scoreboardArea);
-    dartMatchArea.appendChild(gameArea);
-    dartMatchArea.appendChild(player1Area);
-    dartMatchArea.appendChild(player2Area);
-    
-    // Dart maçı alanını sayfaya ekle
-    document.querySelector('.container').appendChild(dartMatchArea);
-    
-    // Oyuncu portrelerini ayarla
-    document.getElementById('player1-dart-portrait').style.backgroundImage = `url('images/${gameState.player1.image}')`;
-    document.getElementById('player2-dart-portrait').style.backgroundImage = `url('images/${gameState.player2.image}')`;
-    
-    // Cricket puanlama sistemini başlat
-    initCricketScoring();
-    
-    // Karakter görselini güncelle
-    updateCharacterVisual();
-    
-    // Mobil için dokunmatik olayları ekle
-    setupMobileControls();
-    
-    // Oyuncu animasyonlarını ayarla
-    updatePlayerAnimations();
-}
-
-// Karakter görselini güncelle
-function updateCharacterVisual() {
-    const activeCharacter = document.getElementById('active-character');
-    const activePlayerData = gameState.activePlayer === 1 ? gameState.player1 : gameState.player2;
-    
-    // Tüm animasyon sınıflarını temizle
-    activeCharacter.classList.remove('character-throwing', 'character-ready', 'character-success');
-    
-    // Geçiş animasyonu için önce karakteri küçült
-    activeCharacter.style.transform = 'scale(0.8)';
-    activeCharacter.style.opacity = '0.7';
-    
-    // Kısa bir gecikme sonra yeni karakteri göster
-    setTimeout(() => {
-        activeCharacter.style.backgroundImage = `url('images/${activePlayerData.image}')`;
-        
-        if (gameState.activePlayer === 1) {
-            activeCharacter.className = 'active-character player1-character';
-        } else {
-            activeCharacter.className = 'active-character player2-character';
-        }
-        
-        // Karakteri normal boyuta getir ve vurgula
-        setTimeout(() => {
-            activeCharacter.style.transform = 'scale(1)';
-            activeCharacter.style.opacity = '1';
-            
-            // Hazır animasyonunu ekle
-            setTimeout(() => {
-                activeCharacter.classList.add('character-ready');
-            }, 200);
-        }, 100);
-    }, 200);
-    
-    // Oyuncu animasyonlarını güncelle
-    updatePlayerAnimations();
-}
-
-// Oyuncu animasyonlarını güncelle
-function updatePlayerAnimations() {
-    const player1Area = document.getElementById('player1-area');
-    const player2Area = document.getElementById('player2-area');
-    
-    if (gameState.activePlayer === 1) {
-        player1Area.className = 'player-dart-area player1-area player-active';
-        player2Area.className = 'player-dart-area player2-area player-inactive';
-    } else {
-        player1Area.className = 'player-dart-area player1-area player-inactive';
-        player2Area.className = 'player-dart-area player2-area player-active';
-    }
 }
 
 // Dart at
@@ -1365,6 +1139,13 @@ function resetGameAndReturnToSelection() {
         dartMatchArea.parentNode.removeChild(dartMatchArea);
     }
     
+    // Street Fighter temasını kaldır
+    deactivateStreetFighterTheme();
+    const background = document.getElementById('street-fighter-background');
+    const overlay = document.getElementById('street-fighter-overlay');
+    if (background) document.body.removeChild(background);
+    if (overlay) document.body.removeChild(overlay);
+    
     // Cricket puanlarını sıfırla
     gameState.cricketScores = {
         player1: {
@@ -1502,4 +1283,298 @@ function simulateLoading(callback) {
             setTimeout(callback, 500); // Yükleme tamamlandıktan sonra kısa bir gecikme
         }
     }, 300);
+}
+
+// Street Fighter temasını oluştur
+function createStreetFighterTheme() {
+    // Arka plan elementlerini oluştur
+    const background = document.createElement('div');
+    background.className = 'street-fighter-background';
+    background.id = 'street-fighter-background';
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'street-fighter-overlay';
+    overlay.id = 'street-fighter-overlay';
+    
+    // Sayfaya ekle
+    document.body.appendChild(background);
+    document.body.appendChild(overlay);
+}
+
+// Street Fighter temasını aktifleştir
+function activateStreetFighterTheme() {
+    const background = document.getElementById('street-fighter-background');
+    const overlay = document.getElementById('street-fighter-overlay');
+    
+    if (background && overlay) {
+        background.classList.add('street-fighter-active');
+        overlay.classList.add('street-fighter-active');
+    }
+    
+    // Dart tahtasına Street Fighter efekti ekle
+    const dartBoard = document.querySelector('.dart-board');
+    if (dartBoard) {
+        dartBoard.classList.add('street-fighter-flash');
+    }
+    
+    // Oyuncu bilgilerine Street Fighter yazı tipi ekle
+    const playerInfoElements = document.querySelectorAll('.player-name, .player-score, .throws-left');
+    playerInfoElements.forEach(element => {
+        element.classList.add('street-fighter-text');
+    });
+}
+
+// Street Fighter temasını deaktifleştir
+function deactivateStreetFighterTheme() {
+    const background = document.getElementById('street-fighter-background');
+    const overlay = document.getElementById('street-fighter-overlay');
+    
+    if (background && overlay) {
+        background.classList.remove('street-fighter-active');
+        overlay.classList.remove('street-fighter-active');
+    }
+    
+    // Dart tahtasından Street Fighter efektini kaldır
+    const dartBoard = document.querySelector('.dart-board');
+    if (dartBoard) {
+        dartBoard.classList.remove('street-fighter-flash');
+    }
+    
+    // Oyuncu bilgilerinden Street Fighter yazı tipini kaldır
+    const playerInfoElements = document.querySelectorAll('.player-name, .player-score, .throws-left');
+    playerInfoElements.forEach(element => {
+        element.classList.remove('street-fighter-text');
+    });
+}
+
+// Dart maçı alanını oluştur
+function createDartMatchArea() {
+    // Mevcut içeriği gizle
+    document.querySelector('.player-grid-container').style.display = 'none';
+    document.querySelector('.instructions').style.display = 'none';
+    document.querySelector('.start-button').style.display = 'none';
+    
+    // Ana dart maçı alanı
+    const dartMatchArea = document.createElement('div');
+    dartMatchArea.className = 'dart-match-area';
+    
+    // Dart tahtası
+    const dartBoard = document.createElement('div');
+    dartBoard.className = 'dart-board';
+    dartBoard.style.backgroundImage = "url('images/board.png')";
+    
+    // Oyun alanı
+    const gameArea = document.createElement('div');
+    gameArea.className = 'game-area';
+    
+    // Karakter atış alanı
+    const characterArea = document.createElement('div');
+    characterArea.className = 'character-throw-area';
+    
+    // Aktif oyuncu karakteri
+    const activeCharacter = document.createElement('div');
+    activeCharacter.className = 'active-character';
+    activeCharacter.id = 'active-character';
+    
+    // Dart tahtası alanı
+    const dartBoardArea = document.createElement('div');
+    dartBoardArea.className = 'dart-board-area';
+    dartBoardArea.appendChild(dartBoard);
+    
+    // Skor tablosu alanı - Üstte olacak
+    const scoreboardArea = document.createElement('div');
+    scoreboardArea.className = 'scoreboard-area';
+    
+    // Oyuncu 1 skor tablosu
+    const player1Scoreboard = document.createElement('div');
+    player1Scoreboard.className = 'cricket-scoreboard player1-scoreboard';
+    player1Scoreboard.innerHTML = `
+        <div class="player-name-header">${gameState.player1.name}</div>
+        <div class="cricket-scores">
+            <div class="cricket-row">
+                <div class="cricket-label">15:</div>
+                <div class="cricket-marks" id="p1-15"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">16:</div>
+                <div class="cricket-marks" id="p1-16"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">17:</div>
+                <div class="cricket-marks" id="p1-17"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">18:</div>
+                <div class="cricket-marks" id="p1-18"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">19:</div>
+                <div class="cricket-marks" id="p1-19"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">20:</div>
+                <div class="cricket-marks" id="p1-20"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">Bull:</div>
+                <div class="cricket-marks" id="p1-bull"></div>
+            </div>
+        </div>
+        <div class="player-score-display">
+            <div class="score-label">SKOR</div>
+            <div class="score-value" id="player1-score">0</div>
+        </div>
+    `;
+    
+    // Oyuncu 2 skor tablosu
+    const player2Scoreboard = document.createElement('div');
+    player2Scoreboard.className = 'cricket-scoreboard player2-scoreboard';
+    player2Scoreboard.innerHTML = `
+        <div class="player-name-header">${gameState.player2.name}</div>
+        <div class="cricket-scores">
+            <div class="cricket-row">
+                <div class="cricket-label">15:</div>
+                <div class="cricket-marks" id="p2-15"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">16:</div>
+                <div class="cricket-marks" id="p2-16"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">17:</div>
+                <div class="cricket-marks" id="p2-17"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">18:</div>
+                <div class="cricket-marks" id="p2-18"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">19:</div>
+                <div class="cricket-marks" id="p2-19"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">20:</div>
+                <div class="cricket-marks" id="p2-20"></div>
+            </div>
+            <div class="cricket-row">
+                <div class="cricket-label">Bull:</div>
+                <div class="cricket-marks" id="p2-bull"></div>
+            </div>
+        </div>
+        <div class="player-score-display">
+            <div class="score-label">SKOR</div>
+            <div class="score-value" id="player2-score">0</div>
+        </div>
+    `;
+    
+    // Skor tablolarını skor alanına ekle
+    scoreboardArea.appendChild(player1Scoreboard);
+    scoreboardArea.appendChild(player2Scoreboard);
+    
+    // Oyuncu alanları - Altta olacak
+    const player1Area = document.createElement('div');
+    player1Area.className = 'player-dart-area player1-area';
+    player1Area.id = 'player1-area';
+    player1Area.innerHTML = `
+        <div class="player-info-compact">
+            <div class="player-dart-portrait" id="player1-dart-portrait"></div>
+            <div class="player-info-text">
+                <div class="player-dart-name">${gameState.player1.name}</div>
+            </div>
+        </div>
+    `;
+    
+    const player2Area = document.createElement('div');
+    player2Area.className = 'player-dart-area player2-area';
+    player2Area.id = 'player2-area';
+    player2Area.innerHTML = `
+        <div class="player-info-compact">
+            <div class="player-dart-portrait" id="player2-dart-portrait"></div>
+            <div class="player-info-text">
+                <div class="player-dart-name">${gameState.player2.name}</div>
+            </div>
+        </div>
+    `;
+    
+    // Karakter ve dart tahtasını oyun alanına ekle
+    characterArea.appendChild(activeCharacter);
+    gameArea.appendChild(characterArea);
+    gameArea.appendChild(dartBoardArea);
+    
+    // Oyuncu alanlarını, skor tablosunu ve oyun alanını dart maçı alanına ekle
+    dartMatchArea.appendChild(scoreboardArea);
+    dartMatchArea.appendChild(gameArea);
+    dartMatchArea.appendChild(player1Area);
+    dartMatchArea.appendChild(player2Area);
+    
+    // Dart maçı alanını sayfaya ekle
+    document.querySelector('.container').appendChild(dartMatchArea);
+    
+    // Oyuncu portrelerini ayarla
+    document.getElementById('player1-dart-portrait').style.backgroundImage = `url('images/${gameState.player1.image}')`;
+    document.getElementById('player2-dart-portrait').style.backgroundImage = `url('images/${gameState.player2.image}')`;
+    
+    // Cricket puanlama sistemini başlat
+    initCricketScoring();
+    
+    // Karakter görselini güncelle
+    updateCharacterVisual();
+    
+    // Mobil için dokunmatik olayları ekle
+    setupMobileControls();
+    
+    // Oyuncu animasyonlarını ayarla
+    updatePlayerAnimations();
+}
+
+// Karakter görselini güncelle
+function updateCharacterVisual() {
+    const activeCharacter = document.getElementById('active-character');
+    const activePlayerData = gameState.activePlayer === 1 ? gameState.player1 : gameState.player2;
+    
+    // Tüm animasyon sınıflarını temizle
+    activeCharacter.classList.remove('character-throwing', 'character-ready', 'character-success');
+    
+    // Geçiş animasyonu için önce karakteri küçült
+    activeCharacter.style.transform = 'scale(0.8)';
+    activeCharacter.style.opacity = '0.7';
+    
+    // Kısa bir gecikme sonra yeni karakteri göster
+    setTimeout(() => {
+        activeCharacter.style.backgroundImage = `url('images/${activePlayerData.image}')`;
+        
+        if (gameState.activePlayer === 1) {
+            activeCharacter.className = 'active-character player1-character';
+        } else {
+            activeCharacter.className = 'active-character player2-character';
+        }
+        
+        // Karakteri normal boyuta getir ve vurgula
+        setTimeout(() => {
+            activeCharacter.style.transform = 'scale(1)';
+            activeCharacter.style.opacity = '1';
+            
+            // Hazır animasyonunu ekle
+            setTimeout(() => {
+                activeCharacter.classList.add('character-ready');
+            }, 200);
+        }, 100);
+    }, 200);
+    
+    // Oyuncu animasyonlarını güncelle
+    updatePlayerAnimations();
+}
+
+// Oyuncu animasyonlarını güncelle
+function updatePlayerAnimations() {
+    const player1Area = document.getElementById('player1-area');
+    const player2Area = document.getElementById('player2-area');
+    
+    if (gameState.activePlayer === 1) {
+        player1Area.className = 'player-dart-area player1-area player-active';
+        player2Area.className = 'player-dart-area player2-area player-inactive';
+    } else {
+        player1Area.className = 'player-dart-area player1-area player-inactive';
+        player2Area.className = 'player-dart-area player2-area player-active';
+    }
 }
