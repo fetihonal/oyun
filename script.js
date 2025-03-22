@@ -912,22 +912,21 @@ function calculateDartHit() {
     const dartBoard = document.querySelector('.dart-board');
     const boardRect = dartBoard.getBoundingClientRect();
     
-    // Tahtanın merkezi
     const centerX = boardRect.width / 2;
     const centerY = boardRect.height / 2;
     
-    // Aktif oyuncu
-    const player = gameState.activePlayer === 1 ? gameState.player1 : gameState.player2;
+    // Cricket sayıları
+    const cricketNumbers = ['15', '16', '17', '18', '19', '20', 'bull'];
     
-    // Hedef sayı (Cricket için 15-20 ve bull)
-    const cricketNumbers = [15, 16, 17, 18, 19, 20, 'bull'];
-    
-    // Bull gelme olasılığını artır (test için)
+    // Hedef sayı
     let targetNumber;
-    if (Math.random() < 0.3) { // %30 ihtimalle bull
+    
+    // Bull hedefleme şansını %50 azalt
+    const bullChance = 0.1; // Önceki değerin yarısı
+    if (Math.random() < bullChance) {
         targetNumber = 'bull';
     } else {
-        targetNumber = cricketNumbers[Math.floor(Math.random() * cricketNumbers.length)];
+        targetNumber = cricketNumbers[Math.floor(Math.random() * (cricketNumbers.length - 1))]; // 'bull' hariç
     }
     
     // Hedef konumu
@@ -946,8 +945,8 @@ function calculateDartHit() {
         targetY = centerY + Math.sin(angle) * distance;
     }
     
-    // Rastgele sapma
-    const maxDeviation = 30;
+    // Rastgele sapma - Bull için daha fazla sapma ekle
+    const maxDeviation = targetNumber === 'bull' ? 40 : 30; // Bull için daha fazla sapma
     const deviationX = (Math.random() * 2 - 1) * maxDeviation;
     const deviationY = (Math.random() * 2 - 1) * maxDeviation;
     
@@ -974,8 +973,8 @@ function calculateDartHit() {
     // Iskaladı mı kontrol et
     const hit = distance < boardRadius;
     
-    // Bull geldiğinde özel efekt kontrolü - daha geniş bir aralık kullanıyoruz
-    const isBullseye = hit && targetNumber === 'bull' && distance < boardRadius * 0.25;
+    // Bull geldiğinde özel efekt kontrolü - daha dar bir aralık kullanıyoruz
+    const isBullseye = hit && targetNumber === 'bull' && distance < boardRadius * 0.125; // %50 daha küçük (0.25 yerine 0.125)
     
     return {
         hit: hit,
