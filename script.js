@@ -77,7 +77,7 @@ const sounds = {
 function playSound(sound) {
     sound.pause();
     sound.currentTime = 0;
-    sound.volume = 0.5;
+    sound.volume = 1;
     
     const playPromise = sound.play();
     
@@ -112,7 +112,7 @@ function stopBackgroundMusic(music) {
 function preloadSounds() {
     for (const sound in sounds) {
         sounds[sound].load();
-        sounds[sound].volume = 0.5; // Ses seviyesini ayarla
+        sounds[sound].volume = 0.1; // Ses seviyesini ayarla
     }
 }
 
@@ -685,13 +685,34 @@ function updateCharacterVisual() {
     const activeCharacter = document.getElementById('active-character');
     const activePlayerData = gameState.activePlayer === 1 ? gameState.player1 : gameState.player2;
     
-    activeCharacter.style.backgroundImage = `url('images/${activePlayerData.image}')`;
+    // Tüm animasyon sınıflarını temizle
+    activeCharacter.classList.remove('character-throwing', 'character-ready', 'character-success');
     
-    if (gameState.activePlayer === 1) {
-        activeCharacter.className = 'active-character player1-character';
-    } else {
-        activeCharacter.className = 'active-character player2-character';
-    }
+    // Geçiş animasyonu için önce karakteri küçült
+    activeCharacter.style.transform = 'scale(0.8)';
+    activeCharacter.style.opacity = '0.7';
+    
+    // Kısa bir gecikme sonra yeni karakteri göster
+    setTimeout(() => {
+        activeCharacter.style.backgroundImage = `url('images/${activePlayerData.image}')`;
+        
+        if (gameState.activePlayer === 1) {
+            activeCharacter.className = 'active-character player1-character';
+        } else {
+            activeCharacter.className = 'active-character player2-character';
+        }
+        
+        // Karakteri normal boyuta getir ve vurgula
+        setTimeout(() => {
+            activeCharacter.style.transform = 'scale(1)';
+            activeCharacter.style.opacity = '1';
+            
+            // Hazır animasyonunu ekle
+            setTimeout(() => {
+                activeCharacter.classList.add('character-ready');
+            }, 200);
+        }, 100);
+    }, 200);
     
     // Oyuncu animasyonlarını güncelle
     updatePlayerAnimations();
@@ -717,38 +738,57 @@ function throwDart() {
     
     // Atış animasyonu
     const activeCharacter = document.getElementById('active-character');
-    activeCharacter.classList.add('character-throwing');
     
-    // Atış sesi
-    playSound(sounds.throw);
+    // Atış hazırlık animasyonu
+    activeCharacter.classList.add('character-ready');
     
-    // Atış sonucunu hesapla
-    const result = calculateDartHit();
-    
-    // Dart oku oluştur
-    createDartOnBoard(result.x, result.y);
-    
-    // Sonucu göster
+    // Kısa bir gecikme sonra atış animasyonu
     setTimeout(() => {
-        activeCharacter.classList.remove('character-throwing');
+        // Hazırlık animasyonunu kaldır
+        activeCharacter.classList.remove('character-ready');
         
-        if (result.hit) {
-            showHitNumber(result.number, result.multiplier);
-            updateCricketScore(result.number, result.multiplier);
-        } else {
-            showHitNumber('Iskaladı', 0);
-        }
+        // Atış animasyonunu başlat
+        activeCharacter.classList.add('character-throwing');
         
-        // Atış sayısını azalt
-        gameState.throwsLeft--;
+        // Atış sesi
+        playSound(sounds.throw);
         
-        // Atış bittiyse sırayı diğer oyuncuya geçir
-        if (gameState.throwsLeft <= 0) {
-            setTimeout(() => {
-                startDartThrowing();
-            }, 1500);
-        }
-    }, 500);
+        // Atış sonucunu hesapla
+        const result = calculateDartHit();
+        
+        // Dart oku oluştur
+        createDartOnBoard(result.x, result.y);
+        
+        // Sonucu göster
+        setTimeout(() => {
+            // Atış animasyonunu kaldır
+            activeCharacter.classList.remove('character-throwing');
+            
+            // İsabet durumuna göre başarı animasyonu ekle
+            if (result.hit) {
+                activeCharacter.classList.add('character-success');
+                showHitNumber(result.number, result.multiplier);
+                updateCricketScore(result.number, result.multiplier);
+                
+                // Başarı animasyonunu kaldır
+                setTimeout(() => {
+                    activeCharacter.classList.remove('character-success');
+                }, 500);
+            } else {
+                showHitNumber('Iskaladı', 0);
+            }
+            
+            // Atış sayısını azalt
+            gameState.throwsLeft--;
+            
+            // Atış bittiyse sırayı diğer oyuncuya geçir
+            if (gameState.throwsLeft <= 0) {
+                setTimeout(() => {
+                    startDartThrowing();
+                }, 1500);
+            }
+        }, 500);
+    }, 300);
 }
 
 // İsabet numarasını göster
