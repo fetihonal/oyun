@@ -490,67 +490,165 @@ function createDartMatchArea() {
         <div class="throws-left" id="p2-throws">Atış: 0</div>
     `;
     
-    // Dart atma butonu
-    const throwButton = document.createElement('button');
-    throwButton.id = 'throw-dart-button';
-    throwButton.className = 'throw-dart-button';
-    throwButton.textContent = 'DART AT';
+    // Oyun alanı
+    const gameArea = document.createElement('div');
+    gameArea.className = 'game-area';
     
-    // Yeni oyun butonu
-    const newGameButton = document.createElement('button');
-    newGameButton.id = 'new-game-button';
-    newGameButton.className = 'new-game-button';
-    newGameButton.textContent = 'YENİ OYUN';
-    newGameButton.style.display = 'none';
+    // Karakter atış alanı
+    const characterArea = document.createElement('div');
+    characterArea.className = 'character-throw-area';
     
-    // Oyuncu portrelerini ayarla
-    setTimeout(() => {
-        document.getElementById('player1-dart-portrait').style.backgroundImage = `url('images/${gameState.player1.image}')`;
-        document.getElementById('player2-dart-portrait').style.backgroundImage = `url('images/${gameState.player2.image}')`;
-    }, 100);
+    // Aktif oyuncu karakteri
+    const activeCharacter = document.createElement('div');
+    activeCharacter.className = 'active-character';
+    activeCharacter.id = 'active-character';
     
-    // Elementleri ekle
+    // Dart tahtası alanı
+    const dartBoardArea = document.createElement('div');
+    dartBoardArea.className = 'dart-board-area';
+    dartBoardArea.appendChild(dartBoard);
+    
+    // Karakter ve dart tahtasını oyun alanına ekle
+    characterArea.appendChild(activeCharacter);
+    gameArea.appendChild(characterArea);
+    gameArea.appendChild(dartBoardArea);
+    
+    // Oyun alanını ve oyuncu alanlarını dart maçı alanına ekle
     dartMatchArea.appendChild(player1Area);
-    dartMatchArea.appendChild(dartBoard);
+    dartMatchArea.appendChild(gameArea);
     dartMatchArea.appendChild(player2Area);
-    
-    const buttonContainer = document.createElement('div');
-    buttonContainer.className = 'dart-buttons';
-    buttonContainer.appendChild(throwButton);
-    buttonContainer.appendChild(newGameButton);
     
     // Dart maçı alanını sayfaya ekle
     document.querySelector('.container').appendChild(dartMatchArea);
-    document.querySelector('.container').appendChild(buttonContainer);
     
-    // Dart atma butonuna tıklama olayı ekle
-    document.getElementById('throw-dart-button').addEventListener('click', throwDart);
+    // Oyuncu portrelerini ayarla
+    document.getElementById('player1-dart-portrait').style.backgroundImage = `url('images/${gameState.player1.image}')`;
+    document.getElementById('player2-dart-portrait').style.backgroundImage = `url('images/${gameState.player2.image}')`;
     
-    // Yeni oyun butonuna tıklama olayı ekle
-    document.getElementById('new-game-button').addEventListener('click', resetGame);
+    // Cricket puanlama sistemini başlat
+    initCricketScoring();
     
-    // Oyun durumunu güncelle
-    gameState.dartMatch = {
-        currentPlayer: 1,
-        player1Score: 0,
-        player2Score: 0,
-        throwsLeft: 3,
-        gameOver: false,
-        // Cricket için gerekli veriler
-        player1Cricket: {
-            15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0, bull: 0
-        },
-        player2Cricket: {
-            15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0, bull: 0
-        },
-        dartsThrown: []
-    };
+    // Karakter görselini güncelle
+    updateCharacterVisual();
+    
+    // Mobil için dokunmatik olayları ekle
+    setupMobileControls();
+}
+
+// Cricket puanlama sistemini başlat
+function initCricketScoring() {
+    // Cricket sayıları
+    const cricketNumbers = [15, 16, 17, 18, 19, 20, 'bull'];
+    
+    // Cricket puanlama sistemi
+    gameState.dartMatch.player1Cricket = {};
+    gameState.dartMatch.player2Cricket = {};
+    
+    // Her sayı için başlangıç değeri 0
+    cricketNumbers.forEach(number => {
+        gameState.dartMatch.player1Cricket[number] = 0;
+        gameState.dartMatch.player2Cricket[number] = 0;
+    });
+    
+    // Atılan dartları takip et
+    gameState.dartMatch.dartsThrown = [];
+    
+    // Puanları sıfırla
+    gameState.dartMatch.player1Score = 0;
+    gameState.dartMatch.player2Score = 0;
+    
+    // Skorları güncelle
+    document.getElementById('player1-score').textContent = '0';
+    document.getElementById('player2-score').textContent = '0';
+}
+
+// Mobil kontrolleri ayarla
+function setupMobileControls() {
+    const activeCharacter = document.getElementById('active-character');
+    const dartBoardArea = document.querySelector('.dart-board-area');
+    
+    // Karakter tıklandığında dart atma
+    activeCharacter.addEventListener('click', handleCharacterTap);
+    activeCharacter.addEventListener('touchstart', handleCharacterTap);
+    
+    // Dokunmatik cihazlar için hover efekti
+    activeCharacter.addEventListener('touchstart', function() {
+        this.classList.add('character-hover');
+    });
+    
+    activeCharacter.addEventListener('touchend', function() {
+        this.classList.remove('character-hover');
+    });
+}
+
+// Karakter tıklandığında
+function handleCharacterTap(e) {
+    e.preventDefault();
+    
+    if (gameState.dartMatch.throwsLeft > 0 && !gameState.dartMatch.gameOver) {
+        // Karakterin atış animasyonu
+        const activeCharacter = document.getElementById('active-character');
+        activeCharacter.classList.add('character-throwing');
+        
+        // Atış sesi çal
+        playSound(sounds.select);
+        
+        // Titreşim efekti
+        if ('vibrate' in navigator) {
+            navigator.vibrate(50);
+        }
+        
+        // Kısa bir gecikme sonra dart at
+        setTimeout(() => {
+            throwDart();
+            activeCharacter.classList.remove('character-throwing');
+        }, 300);
+    }
+}
+
+// Karakter görselini güncelle
+function updateCharacterVisual() {
+    const activeCharacter = document.getElementById('active-character');
+    const currentPlayer = gameState.dartMatch.currentPlayer;
+    const player = currentPlayer === 1 ? gameState.player1 : gameState.player2;
+    
+    // Karakter görselini ayarla
+    activeCharacter.style.backgroundImage = `url('images/${player.image}')`;
+    
+    // Oyuncuya göre sınıf ekle
+    activeCharacter.className = 'active-character';
+    activeCharacter.classList.add(`player${currentPlayer}-character`);
+    
+    // Atış sayısını göster
+    const throwsIndicator = document.createElement('div');
+    throwsIndicator.className = 'throws-indicator';
+    throwsIndicator.textContent = `${gameState.dartMatch.throwsLeft}`;
+    
+    // Mevcut göstergeyi kaldır ve yenisini ekle
+    const oldIndicator = activeCharacter.querySelector('.throws-indicator');
+    if (oldIndicator) {
+        activeCharacter.removeChild(oldIndicator);
+    }
+    activeCharacter.appendChild(throwsIndicator);
+    
+    // Mobil için ipucu göster
+    const mobileHint = document.createElement('div');
+    mobileHint.className = 'mobile-hint';
+    mobileHint.textContent = 'Atmak için dokun';
+    
+    // Mevcut ipucunu kaldır ve yenisini ekle
+    const oldHint = activeCharacter.querySelector('.mobile-hint');
+    if (oldHint) {
+        activeCharacter.removeChild(oldHint);
+    }
+    activeCharacter.appendChild(mobileHint);
 }
 
 // Dart atma sırasını başlat
 function startDartThrowing() {
     updateCurrentPlayerHighlight();
     updateThrowsLeft();
+    updateCharacterVisual();
 }
 
 // Atış sayısını güncelle
@@ -579,7 +677,7 @@ function throwDart() {
     
     const currentPlayer = gameState.dartMatch.currentPlayer;
     const dartBoard = document.querySelector('.dart-board');
-    const playerArea = document.querySelector(`.player${currentPlayer}-area`);
+    const activeCharacter = document.getElementById('active-character');
     
     // Dart oku oluştur
     const dart = document.createElement('div');
@@ -592,12 +690,13 @@ function throwDart() {
         dart.innerHTML = `<div class="dart-shaft"></div><div class="dart-flight red-flight"></div>`;
     }
     
-    // Dart okunu oyuncunun yanına yerleştir
-    playerArea.appendChild(dart);
+    // Dart okunu karakterin yanına yerleştir
+    activeCharacter.appendChild(dart);
     
     // Dart atma animasyonu
     const dartRect = dart.getBoundingClientRect();
     const boardRect = dartBoard.getBoundingClientRect();
+    const characterRect = activeCharacter.getBoundingClientRect();
     
     // Rastgele bir hedef nokta belirle (dart tahtasının içinde)
     const boardCenterX = boardRect.left + boardRect.width / 2;
@@ -653,11 +752,9 @@ function throwDart() {
         targetY = boardCenterY + Math.sin(angle) * distance;
     }
     
-    // Başlangıç pozisyonu (oyuncunun yanından)
-    const startX = currentPlayer === 1 ? 
-        playerArea.getBoundingClientRect().right :
-        playerArea.getBoundingClientRect().left;
-    const startY = playerArea.getBoundingClientRect().top + 50;
+    // Başlangıç pozisyonu (karakterin elinden)
+    const startX = characterRect.left + characterRect.width * 0.75;
+    const startY = characterRect.top + characterRect.height * 0.4;
     
     // Dart okunu başlangıç pozisyonuna yerleştir
     dart.style.position = 'fixed';
@@ -679,7 +776,7 @@ function throwDart() {
         
         // Eğrisel bir yol izle
         const currentX = startX + (targetX - startX) * progress;
-        const currentY = startY + (targetY - startY) * progress - Math.sin(progress * Math.PI) * 100;
+        const currentY = startY + (targetY - startY) * progress - Math.sin(progress * Math.PI) * 50;
         
         // Dart okunu döndür
         const rotation = progress * 720; // 2 tam tur
@@ -740,6 +837,7 @@ function throwDart() {
                 // Atış sayısını azalt
                 gameState.dartMatch.throwsLeft--;
                 updateThrowsLeft();
+                updateCharacterVisual();
                 
                 // Atış bittiyse sırayı değiştir
                 if (gameState.dartMatch.throwsLeft === 0) {
@@ -748,6 +846,7 @@ function throwDart() {
                     gameState.dartMatch.throwsLeft = 3;
                     updateCurrentPlayerHighlight();
                     updateThrowsLeft();
+                    updateCharacterVisual();
                     
                     // Tahtadaki dartları temizle
                     setTimeout(clearDartsFromBoard, 1000);

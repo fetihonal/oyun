@@ -142,7 +142,7 @@ body {
 
 /* Aktif oyuncu seçim alanı vurgulaması */
 .player-selection.active-selection {
-    animation: pulse-border 1s infinite alternate;
+    animation: pulse 1s infinite alternate;
     transform: scale(1.05);
     z-index: 1;
 }
@@ -1218,77 +1218,126 @@ body {
 .dart-match-area {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: stretch;
     margin-top: 20px;
-    width: 100%;
+    position: relative;
+    min-height: 500px;
 }
 
-.player-dart-area {
-    width: 200px;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    transition: all 0.3s ease;
+/* Oyun Alanı - Yeni Eklenen */
+.game-area {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    height: 100%;
+    min-height: 500px;
 }
 
-.player1-area {
-    background-color: rgba(0, 102, 255, 0.2);
-    border: 2px solid #0066ff;
+/* Karakter Atış Alanı - Yeni Eklenen */
+.character-throw-area {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    position: relative;
+    min-height: 150px;
+    padding-bottom: 10px;
 }
 
-.player2-area {
-    background-color: rgba(255, 0, 0, 0.2);
-    border: 2px solid #ff0000;
-}
-
-.active-player {
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
-    transform: scale(1.05);
-}
-
-.player-score {
-    margin-bottom: 15px;
-}
-
-.score-label {
-    font-size: 18px;
-    font-weight: bold;
-    color: #fff;
-}
-
-.score-value {
-    font-size: 36px;
-    font-weight: bold;
-    color: #fff;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-}
-
-.player-dart-portrait {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
+/* Aktif Karakter - Yeni Eklenen */
+.active-character {
+    width: 120px;
+    height: 150px;
     background-size: cover;
-    background-position: center;
-    margin: 0 auto 10px;
+    background-position: center top;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 10px;
     border: 3px solid #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+    z-index: 10;
 }
 
-.player-dart-name {
-    font-size: 20px;
+/* Oyuncu 1 Karakter Stili */
+.player1-character {
+    border-color: #0066ff;
+    box-shadow: 0 0 15px rgba(0, 102, 255, 0.5);
+}
+
+/* Oyuncu 2 Karakter Stili */
+.player2-character {
+    border-color: #ff0000;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+}
+
+/* Karakter Hover Efekti */
+.active-character:hover, .active-character.character-hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255, 204, 0, 0.8);
+}
+
+/* Karakter Atış Animasyonu */
+.active-character.character-throwing {
+    transform: translateY(-10px) rotate(-5deg);
+}
+
+/* Atış Sayısı Göstergesi */
+.throws-indicator {
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    width: 30px;
+    height: 30px;
+    background-color: #ffcc00;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #000;
     font-weight: bold;
-    color: #fff;
-    margin-bottom: 10px;
+    font-size: 16px;
+    border: 2px solid #fff;
+    box-shadow: 0 0 10px rgba(255, 204, 0, 0.8);
+    animation: pulse 1s infinite;
 }
 
+/* Mobil İpucu */
+.mobile-hint {
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+/* Dart Tahtası Alanı - Yeni Eklenen */
+.dart-board-area {
+    flex: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Dart Tahtası */
 .dart-board {
     width: 300px;
     height: 300px;
-    background-color: #222;
+    background-color: #333;
     border-radius: 50%;
     position: relative;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-    border: 10px solid #333;
+    border: 10px solid #222;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+    background-image: radial-gradient(circle, #444, #333, #222);
+    overflow: hidden;
 }
 
 .dart-board-rings {
@@ -1353,98 +1402,104 @@ body {
 .n20 { top: 75%; left: 20%; }
 .bull { top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1; }
 
-.throw-dart-button, .new-game-button {
-    padding: 15px 30px;
+/* Oyuncu Dart Alanı */
+.player-dart-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    margin: 0 10px;
+}
+
+.player1-area {
+    background-color: rgba(0, 102, 255, 0.2);
+    border: 2px solid #0066ff;
+}
+
+.player2-area {
+    background-color: rgba(255, 0, 0, 0.2);
+    border: 2px solid #ff0000;
+}
+
+.active-player {
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+    transform: scale(1.05);
+}
+
+.player-score {
+    margin-bottom: 15px;
+}
+
+.score-label {
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.score-value {
+    font-size: 36px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.player-dart-portrait {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    margin: 0 auto 10px;
+    border: 3px solid #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.player-dart-name {
     font-size: 20px;
     font-weight: bold;
-    border: none;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.throws-left {
+    margin-top: 10px;
+    font-size: 16px;
+    color: #fff;
+}
+
+/* Cricket Scoreboard */
+.cricket-scoreboard {
+    margin-top: 15px;
+    background-color: rgba(0, 0, 0, 0.3);
     border-radius: 5px;
-    cursor: pointer;
-    margin: 20px 10px;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
+    padding: 5px;
+    text-align: left;
 }
 
-.throw-dart-button {
-    background-color: #0066ff;
-    color: #fff;
-    box-shadow: 0 0 10px rgba(0, 102, 255, 0.5);
-}
-
-.throw-dart-button:hover {
-    background-color: #0055cc;
-    transform: scale(1.05);
-}
-
-.new-game-button {
-    background-color: #ff0000;
-    color: #fff;
-    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-}
-
-.new-game-button:hover {
-    background-color: #cc0000;
-    transform: scale(1.05);
-}
-
-.dart-buttons {
+.cricket-row {
     display: flex;
-    justify-content: center;
-    margin-top: 20px;
+    justify-content: space-between;
+    margin: 3px 0;
 }
 
-/* Dart oku */
-.dart {
-    width: 10px;
-    height: 40px;
-    position: relative;
-    z-index: 1000;
+.cricket-label {
+    font-size: 14px;
+    color: #fff;
+    width: 40px;
 }
 
-.dart-shaft {
-    width: 3px;
-    height: 30px;
-    background: linear-gradient(to bottom, #ccc, #999);
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    top: 0;
+.cricket-marks {
+    display: flex;
+    gap: 3px;
 }
 
-.dart-flight {
-    width: 20px;
-    height: 20px;
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-}
-
-.blue-flight {
-    background: linear-gradient(to bottom, #0066ff, #003399);
-    box-shadow: 0 0 5px rgba(0, 102, 255, 0.8);
-}
-
-.red-flight {
-    background: linear-gradient(to bottom, #ff0000, #990000);
-    box-shadow: 0 0 5px rgba(255, 0, 0, 0.8);
-}
-
-.hit-effect {
-    width: 30px;
-    height: 30px;
-    position: fixed;
-    border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.8);
-    transform: translate(-50%, -50%);
-    animation: hit-animation 0.3s ease-out;
-    z-index: 999;
-}
-
-@keyframes hit-animation {
-    0% { transform: translate(-50%, -50%) scale(0.2); opacity: 1; }
-    100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+.cricket-mark {
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
 }
 
 .hit-text {
@@ -1492,44 +1547,6 @@ body {
     100% { transform: scale(1.1); text-shadow: 0 0 30px rgba(255, 255, 255, 1); }
 }
 
-.throws-left {
-    margin-top: 10px;
-    font-size: 16px;
-    color: #fff;
-}
-
-/* Cricket Scoreboard */
-.cricket-scoreboard {
-    margin-top: 15px;
-    background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 5px;
-    padding: 5px;
-    text-align: left;
-}
-
-.cricket-row {
-    display: flex;
-    justify-content: space-between;
-    margin: 3px 0;
-}
-
-.cricket-label {
-    font-size: 14px;
-    color: #fff;
-    width: 40px;
-}
-
-.cricket-marks {
-    display: flex;
-    gap: 3px;
-}
-
-.cricket-mark {
-    color: #fff;
-    font-size: 14px;
-    font-weight: bold;
-}
-
 .penalty-text, .closed-text {
     position: absolute;
     top: 50%;
@@ -1540,4 +1557,152 @@ body {
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
     z-index: 1001;
     transition: all 1s ease;
+}
+
+/* Mobil Düzenlemeler */
+@media (max-width: 768px) {
+    .dart-match-area {
+        flex-direction: column;
+    }
+    
+    .player-dart-area {
+        flex-direction: row;
+        justify-content: space-between;
+        margin: 10px 0;
+        padding: 5px;
+    }
+    
+    .player-dart-portrait {
+        width: 60px;
+        height: 60px;
+        margin-right: 10px;
+    }
+    
+    .player-dart-name {
+        font-size: 14px;
+    }
+    
+    .cricket-scoreboard {
+        font-size: 12px;
+    }
+    
+    .game-area {
+        order: 2;
+        min-height: 400px;
+    }
+    
+    .dart-board {
+        width: 250px;
+        height: 250px;
+    }
+    
+    .active-character {
+        width: 100px;
+        height: 130px;
+    }
+    
+    .score-value {
+        font-size: 28px;
+    }
+    
+    .score-label {
+        font-size: 14px;
+    }
+    
+    .cricket-label {
+        width: 30px;
+        font-size: 12px;
+    }
+}
+
+/* Çok Küçük Ekranlar İçin Ek Düzenlemeler */
+@media (max-width: 480px) {
+    .dart-board {
+        width: 200px;
+        height: 200px;
+    }
+    
+    .active-character {
+        width: 80px;
+        height: 110px;
+    }
+    
+    .cricket-scoreboard {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+    
+    .cricket-row {
+        width: 48%;
+        margin-bottom: 3px;
+    }
+    
+    .player-score {
+        font-size: 12px;
+    }
+    
+    .throws-indicator {
+        width: 25px;
+        height: 25px;
+        font-size: 14px;
+        top: -10px;
+        right: -10px;
+    }
+    
+    .mobile-hint {
+        font-size: 10px;
+        bottom: -20px;
+    }
+}
+
+/* Dart Oku Stilleri */
+.dart {
+    width: 10px;
+    height: 40px;
+    position: absolute;
+    z-index: 100;
+}
+
+.dart-shaft {
+    width: 2px;
+    height: 30px;
+    background-color: #ccc;
+    position: absolute;
+    top: 0;
+    left: 4px;
+}
+
+.dart-flight {
+    width: 10px;
+    height: 15px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+}
+
+.blue-flight {
+    background-color: #0066ff;
+}
+
+.red-flight {
+    background-color: #ff0000;
+}
+
+/* İsabet Efekti */
+.hit-effect {
+    position: fixed;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.8);
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    animation: hit-animation 0.3s forwards;
+}
+
+@keyframes hit-animation {
+    0% { transform: translate(-50%, -50%) scale(0.2); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
 }
