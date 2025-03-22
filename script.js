@@ -63,7 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
     preloadSounds();
     createPlayerCards();
     updateActivePlayerHighlight(); // Sayfa yüklendiğinde aktif oyuncuyu vurgula
-    setupMobileSupport(); // Mobil desteği kur
     
     // Mevcut event listener'ları koruyoruz
     document.querySelectorAll('.player-card').forEach(card => {
@@ -88,11 +87,6 @@ const player2Checkout = document.getElementById('player2-checkout');
 const player1Accuracy = document.getElementById('player1-accuracy');
 const player2Accuracy = document.getElementById('player2-accuracy');
 const startMatchButton = document.getElementById('start-match');
-const touchControls = document.querySelector('.touch-controls');
-const switchPlayerButton = document.getElementById('switch-player');
-
-// Mobil cihaz kontrolü
-const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
 
 // Oyuncu kartlarını oluştur
 function createPlayerCards() {
@@ -258,85 +252,80 @@ function updateFocusedPlayer() {
 // Klavye navigasyonu
 document.addEventListener('keydown', (e) => {
     const playerCards = document.querySelectorAll('.player-card');
-    // Mobil görünümde 3 sütun, masaüstünde 6 sütun
-    const gridColumns = window.innerWidth <= 768 ? 3 : 6;
-    const gridRows = Math.ceil(players.length / gridColumns);
+    // Masaüstünde 6 sütun
+    const columns = 6;
+    const totalPlayers = playerCards.length;
     
-    let currentRow = Math.floor(gameState.focusedPlayerIndex / gridColumns);
-    let currentCol = gameState.focusedPlayerIndex % gridColumns;
+    let currentIndex = gameState.focusedPlayerIndex;
+    let newIndex = currentIndex;
     
     switch (e.key) {
-        case 'ArrowUp':
-        case 'ArrowDown':
-        case 'ArrowLeft':
         case 'ArrowRight':
-            // Yön tuşları için hover sesi
-            playSound(sounds.hover);
-            
-            if (e.key === 'ArrowUp') {
-                currentRow = (currentRow - 1 + gridRows) % gridRows;
-            } else if (e.key === 'ArrowDown') {
-                currentRow = (currentRow + 1) % gridRows;
-            } else if (e.key === 'ArrowLeft') {
-                currentCol = (currentCol - 1 + gridColumns) % gridColumns;
-            } else if (e.key === 'ArrowRight') {
-                currentCol = (currentCol + 1) % gridColumns;
+            if (currentIndex < totalPlayers - 1) {
+                newIndex = currentIndex + 1;
+            }
+            break;
+        case 'ArrowLeft':
+            if (currentIndex > 0) {
+                newIndex = currentIndex - 1;
+            }
+            break;
+        case 'ArrowUp':
+            if (currentIndex - columns >= 0) {
+                newIndex = currentIndex - columns;
+            }
+            break;
+        case 'ArrowDown':
+            if (currentIndex + columns < totalPlayers) {
+                newIndex = currentIndex + columns;
             }
             break;
         case 'Enter':
-            // Seçim için select sesi
-            playSound(sounds.select);
-            
-            const focusedCard = playerCards[gameState.focusedPlayerIndex];
-            if (focusedCard) {
-                const playerId = parseInt(focusedCard.dataset.playerId);
-                const player = players.find(p => p.id === playerId);
-                if (player) {
-                    selectPlayer(player);
-                }
+            // Enter tuşuna basıldığında odaklanılan oyuncuyu seç
+            if (gameState.focusedPlayerIndex >= 0 && gameState.focusedPlayerIndex < players.length) {
+                selectPlayer(players[gameState.focusedPlayerIndex]);
             }
             break;
         case 'Tab':
-            // Oyuncu değiştirme için coin sesi
-            playSound(sounds.coin);
-            
+            // Tab tuşuna basıldığında aktif oyuncuyu değiştir
             e.preventDefault(); // Tarayıcının varsayılan tab davranışını engelle
             gameState.activePlayer = gameState.activePlayer === 1 ? 2 : 1;
             updateActivePlayerHighlight();
             break;
-        default:
-            return;
     }
     
-    // Yeni indeksi hesapla
-    let newIndex = currentRow * gridColumns + currentCol;
-    
-    // Geçerli bir indeks olduğundan emin ol
-    if (newIndex >= players.length) {
-        // Eğer son satırda ve geçersiz bir sütundaysa, 
-        // son oyuncuya git
-        newIndex = players.length - 1;
-    }
-    
-    if (newIndex !== gameState.focusedPlayerIndex) {
+    if (newIndex !== currentIndex) {
         gameState.focusedPlayerIndex = newIndex;
         updateFocusedPlayer();
+        playSound(sounds.hover);
     }
 });
 
-// Maça başla
-startMatchButton.addEventListener('click', () => {
-    playSound(sounds.fight);
-    alert(`Maç başlıyor: ${gameState.player1.name} vs ${gameState.player2.name}`);
-    // Burada maç ekranına yönlendirme yapılabilir
-});
-
-// Oyuncu seçimi için Street Fighter tarzı ses efektleri ve animasyonlar
-function addSelectionAnimation(element) {
-    element.classList.add('character-selected');
+// Fight animasyonu göster
+function showFightAnimation() {
+    const fightOverlay = document.createElement('div');
+    fightOverlay.className = 'fight-overlay';
+    document.body.appendChild(fightOverlay);
+    
     setTimeout(() => {
-        element.classList.remove('character-selected');
-    }, 1000);
+        const fightText = document.createElement('div');
+        fightText.className = 'fight-text';
+        fightText.textContent = 'FIGHT!';
+        fightOverlay.appendChild(fightText);
+        
+        // Titreşim efekti
+        if ('vibrate' in navigator) {
+            navigator.vibrate(200);
+        }
+        
+        // 2 saniye sonra kaldır
+        setTimeout(() => {
+            fightOverlay.classList.add('fade-out');
+            setTimeout(() => {
+                document.body.removeChild(fightOverlay);
+            }, 500);
+        }, 2000);
+    }, 100);
 }
 
 // Maça başla butonuna tıklandığında
@@ -349,205 +338,12 @@ document.getElementById('start-match').addEventListener('click', function() {
     }
 });
 
-// Fight animasyonu göster
-function showFightAnimation() {
-    const fightOverlay = document.createElement('div');
-    fightOverlay.className = 'fight-overlay';
-    
-    const fightText = document.createElement('div');
-    fightText.className = 'fight-text';
-    fightText.textContent = 'FIGHT!';
-    
-    fightOverlay.appendChild(fightText);
-    document.body.appendChild(fightOverlay);
-    
+// Oyuncu seçimi için Street Fighter tarzı ses efektleri ve animasyonlar
+function addSelectionAnimation(element) {
+    element.classList.add('character-selected');
     setTimeout(() => {
-        fightOverlay.classList.add('show');
-        
-        setTimeout(() => {
-            fightOverlay.classList.remove('show');
-            setTimeout(() => {
-                fightOverlay.remove();
-                // Burada oyun başlatma kodunu çağırabilirsiniz
-                // startGame();
-            }, 500);
-        }, 2000);
-    }, 100);
-}
-
-// Klavye olaylarını güncelle
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-        const focusedPlayer = players[gameState.focusedPlayerIndex];
-        if (focusedPlayer) {
-            selectPlayer(focusedPlayer);
-            playSound(sounds.select);
-        }
-    } else if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-        // Yön tuşları için hover sesi
-        playSound(sounds.hover);
-        
-        // Mevcut navigasyon kodunu çalıştır
-        navigatePlayerGrid(event.key);
-    }
-});
-
-// Mobil cihaz desteği
-function setupMobileSupport() {
-    if (isMobile) {
-        document.querySelector('.touch-controls').style.display = 'flex';
-        document.querySelector('.mobile-instructions').style.display = 'block';
-        
-        // Dokunmatik kontrol tuşları için event listener'lar
-        const touchUp = document.getElementById('touch-up');
-        const touchDown = document.getElementById('touch-down');
-        const touchLeft = document.getElementById('touch-left');
-        const touchRight = document.getElementById('touch-right');
-        const touchSelect = document.getElementById('touch-select');
-        const switchPlayerBtn = document.getElementById('switch-player');
-        
-        // Yön tuşları için ses ve simülasyon
-        touchUp.addEventListener('touchstart', function(e) {
-            e.preventDefault(); // Varsayılan davranışı engelle
-            sounds.hover.play();
-            simulateKeyPress('ArrowUp', false);
-        });
-        
-        touchDown.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            sounds.hover.play();
-            simulateKeyPress('ArrowDown', false);
-        });
-        
-        touchLeft.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            sounds.hover.play();
-            simulateKeyPress('ArrowLeft', false);
-        });
-        
-        touchRight.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            sounds.hover.play();
-            simulateKeyPress('ArrowRight', false);
-        });
-        
-        touchSelect.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            sounds.select.play();
-            simulateKeyPress('Enter', false);
-        });
-        
-        switchPlayerBtn.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            sounds.coin.play();
-            switchActivePlayer();
-        });
-        
-        // Oyuncu seçimi için Street Fighter tarzı ses efektleri ve animasyonlar
-        player1Selection.addEventListener('touchstart', () => {
-            if (gameState.activePlayer !== 1) {
-                gameState.activePlayer = 1;
-                updateActivePlayerHighlight();
-                playSound(sounds.coin);
-            }
-        });
-        
-        player2Selection.addEventListener('touchstart', () => {
-            if (gameState.activePlayer !== 2) {
-                gameState.activePlayer = 2;
-                updateActivePlayerHighlight();
-                playSound(sounds.coin);
-            }
-        });
-        
-        // Dokunmatik kaydırma desteği
-        document.addEventListener('touchstart', handleTouchStart, false);
-        document.addEventListener('touchmove', handleTouchMove, false);
-    }
-}
-
-// Aktif oyuncuyu değiştir
-function switchActivePlayer() {
-    gameState.activePlayer = gameState.activePlayer === 1 ? 2 : 1;
-    updateActivePlayerHighlight();
-}
-
-// Dokunmatik kaydırma için değişkenler
-let xDown = null;
-let yDown = null;
-
-// Dokunmatik başlangıç noktasını kaydet
-function handleTouchStart(evt) {
-    const firstTouch = evt.touches[0];
-    xDown = firstTouch.clientX;
-    yDown = firstTouch.clientY;
-}
-
-// Dokunmatik kaydırma yönünü algıla
-function handleTouchMove(evt) {
-    if (!xDown || !yDown) {
-        return;
-    }
-
-    const xUp = evt.touches[0].clientX;
-    const yUp = evt.touches[0].clientY;
-
-    const xDiff = xDown - xUp;
-    const yDiff = yDown - yUp;
-
-    // Mobil görünümde 3 sütun, masaüstünde 6 sütun
-    const gridColumns = window.innerWidth <= 768 ? 3 : 6;
-    
-    // Minimum kaydırma mesafesi (piksel cinsinden)
-    const minSwipeDistance = 30;
-    
-    // Sadece belirli bir mesafeden fazla kaydırma olduğunda işlem yap
-    if (Math.abs(xDiff) > minSwipeDistance || Math.abs(yDiff) > minSwipeDistance) {
-        // Ses çal - doğrudan ses nesnesini kullan
-        sounds.hover.play();
-        
-        if (Math.abs(xDiff) > Math.abs(yDiff)) {
-            if (xDiff > 0) {
-                // Sola kaydırma
-                simulateKeyPress('ArrowRight', false);
-            } else {
-                // Sağa kaydırma
-                simulateKeyPress('ArrowLeft', false);
-            }
-        } else {
-            if (yDiff > 0) {
-                // Yukarı kaydırma
-                simulateKeyPress('ArrowDown', false);
-            } else {
-                // Aşağı kaydırma
-                simulateKeyPress('ArrowUp', false);
-            }
-        }
-    }
-
-    // Başlangıç noktalarını sıfırla
-    xDown = null;
-    yDown = null;
-}
-
-// Tuş basımını simüle et
-function simulateKeyPress(key, playSoundEffect = true) {
-    // Ses çalma (opsiyonel)
-    if (playSoundEffect) {
-        if (key === 'Enter') {
-            playSound(sounds.select);
-        } else {
-            playSound(sounds.hover);
-        }
-    }
-    
-    // Tuş olayını tetikle
-    const event = new KeyboardEvent('keydown', {
-        key: key,
-        bubbles: true,
-        cancelable: true
-    });
-    document.dispatchEvent(event);
+        element.classList.remove('character-selected');
+    }, 1000);
 }
 
 // Oyun durumu
@@ -555,6 +351,5 @@ const gameState = {
     player1: null,
     player2: null,
     activePlayer: 1, // 1 veya 2
-    focusedPlayerIndex: 0,
-    selectedPlayers: []
+    focusedPlayerIndex: 0 // Klavye navigasyonu için odaklanılan oyuncu
 };
