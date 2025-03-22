@@ -45,7 +45,18 @@
         
         <!-- Mobil dokunmatik kontroller -->
         <div class="touch-controls">
-            <div id="switch-player" class="touch-button">↔</div>
+            <div class="touch-button-container">
+                <div class="touch-button-row">
+                    <div id="touch-left" class="touch-button direction-button">←</div>
+                    <div class="touch-button-column">
+                        <div id="touch-up" class="touch-button direction-button">↑</div>
+                        <div id="touch-down" class="touch-button direction-button">↓</div>
+                    </div>
+                    <div id="touch-right" class="touch-button direction-button">→</div>
+                    <div id="touch-select" class="touch-button action-button">SEÇ</div>
+                </div>
+                <div id="switch-player" class="touch-button switch-button">DEĞİŞTİR</div>
+            </div>
         </div>
         
         <div class="player-grid-container">
