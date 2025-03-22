@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dart Turnuvası - Oyuncu Seçimi</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>DART TURNUVASI</h1>
+            <h2>OYUNCU SEÇİMİ</h2>
+        </div>
+        
+        <div class="player-selection-container">
+            <div class="player-selection" id="player1-selection">
+                <div class="player-label">OYUNCU 1</div>
+                <div class="player-portrait" id="player1-portrait"></div>
+                <div class="player-name" id="player1-name">Seçilmedi</div>
+                <div class="player-stats" id="player1-stats">
+                    <div class="stat">Ortalama: <span id="player1-average">-</span></div>
+                    <div class="stat">Checkout: <span id="player1-checkout">-</span></div>
+                    <div class="stat">İsabet: <span id="player1-accuracy">-</span></div>
+                </div>
+            </div>
+            
+            <div class="vs-badge">VS</div>
+            
+            <div class="player-selection" id="player2-selection">
+                <div class="player-label">OYUNCU 2</div>
+                <div class="player-portrait" id="player2-portrait"></div>
+                <div class="player-name" id="player2-name">Seçilmedi</div>
+                <div class="player-stats" id="player2-stats">
+                    <div class="stat">Ortalama: <span id="player2-average">-</span></div>
+                    <div class="stat">Checkout: <span id="player2-checkout">-</span></div>
+                    <div class="stat">İsabet: <span id="player2-accuracy">-</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="start-button-container">
+            <button id="start-match" class="start-button" disabled>MAÇA BAŞLA</button>
+        </div>
+        
+        <!-- Mobil dokunmatik kontroller -->
+        <div class="touch-controls">
+            <div id="switch-player" class="touch-button">↔</div>
+        </div>
+        
+        <div class="player-grid-container">
+            <h3>Oyuncu Seçin</h3>
+            <div class="player-grid" id="player-grid">
+                <!-- Oyuncular JavaScript ile buraya eklenecek -->
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <p>Navigasyon: Ok tuşları (←, →, ↑, ↓) ile gezinin, Enter ile seçin, Tab ile oyuncular arası geçiş yapın</p>
+            <p class="mobile-instructions">Mobil: Oyuncu kartlarına dokunarak seçim yapın, oyuncu panellerine dokunarak aktif oyuncuyu değiştirin</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

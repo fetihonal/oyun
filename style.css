@@ -1,0 +1,869 @@
+/* Street Fighter Temalı Dart Turnuvası Stil Dosyası */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #000;
+    color: #fff;
+    font-family: 'Press Start 2P', cursive;
+    background-image: url('images/background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 4px solid #ff9900;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 30px rgba(255, 153, 0, 0.5);
+}
+
+/* Header Stili */
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.header h1 {
+    font-size: 40px;
+    color: #ff0000;
+    text-shadow: 
+        3px 3px 0 #000,
+        -3px 3px 0 #000,
+        -3px -3px 0 #000,
+        3px -3px 0 #000,
+        0 0 15px #ff0000;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    transform: perspective(500px) rotateX(10deg);
+}
+
+.header h2 {
+    font-size: 24px;
+    color: #ffcc00;
+    text-shadow: 
+        2px 2px 0 #000,
+        -2px 2px 0 #000,
+        -2px -2px 0 #000,
+        2px -2px 0 #000,
+        0 0 10px #ffcc00;
+    letter-spacing: 1px;
+    position: relative;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Oyuncu Seçim Alanı */
+.player-selection-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.player-selection {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    border-radius: 5px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+#player1-selection {
+    background-color: rgba(0, 100, 255, 0.3);
+    border: 3px solid #0066ff;
+    box-shadow: 0 0 15px rgba(0, 102, 255, 0.5);
+}
+
+#player2-selection {
+    background-color: rgba(255, 0, 0, 0.3);
+    border: 3px solid #ff0000;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+}
+
+/* Aktif oyuncu seçim alanı vurgulaması */
+.player-selection.active-selection {
+    animation: pulse-border 1s infinite alternate;
+    transform: scale(1.05);
+    z-index: 1;
+}
+
+#player1-selection.active-selection {
+    box-shadow: 0 0 30px rgba(0, 102, 255, 0.8);
+}
+
+#player2-selection.active-selection {
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
+}
+
+@keyframes pulse-border {
+    from {
+        box-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
+    }
+    to {
+        box-shadow: 0 0 30px rgba(255, 204, 0, 1);
+    }
+}
+
+.player-label {
+    font-size: 16px;
+    margin-bottom: 15px;
+    background-color: #000;
+    padding: 5px 15px;
+    border: 2px solid #fff;
+    border-radius: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.active-selection .player-label {
+    background-color: #ffcc00;
+    color: #000 !important;
+    border-color: #fff;
+    font-weight: bold;
+    text-shadow: none;
+}
+
+#player1-selection .player-label {
+    color: #0066ff;
+    border-color: #0066ff;
+}
+
+#player2-selection .player-label {
+    color: #ff0000;
+    border-color: #ff0000;
+}
+
+.player-portrait {
+    width: 150px;
+    height: 150px;
+    background-color: #333;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    background-size: cover;
+    background-position: center;
+    border: 3px solid #fff;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.player-portrait:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 50%);
+    pointer-events: none;
+}
+
+#player1-selection .player-portrait {
+    border-color: #0066ff;
+}
+
+#player2-selection .player-portrait {
+    border-color: #ff0000;
+}
+
+.player-name {
+    font-size: 18px;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 0 #000;
+    text-transform: uppercase;
+}
+
+#player1-selection .player-name {
+    color: #0066ff;
+}
+
+#player2-selection .player-name {
+    color: #ff0000;
+}
+
+.player-stats {
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+    border: 2px solid #fff;
+    font-size: 12px;
+}
+
+#player1-selection .player-stats {
+    border-color: #0066ff;
+}
+
+#player2-selection .player-stats {
+    border-color: #ff0000;
+}
+
+.stat {
+    margin: 8px 0;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* VS Rozeti */
+.vs-badge {
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, #ffcc00, #ff6600);
+    color: #000;
+    font-size: 28px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    margin: 0 20px;
+    border: 4px solid #fff;
+    box-shadow: 
+        0 0 20px rgba(255, 204, 0, 0.8),
+        0 0 40px rgba(255, 204, 0, 0.4);
+    position: relative;
+    z-index: 2;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+    animation: glow 1.5s infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        box-shadow: 0 0 20px rgba(255, 204, 0, 0.8), 0 0 40px rgba(255, 204, 0, 0.4);
+    }
+    to {
+        box-shadow: 0 0 30px rgba(255, 204, 0, 1), 0 0 60px rgba(255, 204, 0, 0.6);
+    }
+}
+
+/* Başlat Butonu */
+.start-button-container {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+.start-button {
+    padding: 15px 30px;
+    font-size: 18px;
+    font-family: 'Press Start 2P', cursive;
+    background: linear-gradient(to bottom, #ffcc00, #ff6600);
+    color: #000;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 
+        0 5px 0 #cc5200,
+        0 0 20px rgba(255, 204, 0, 0.5);
+    position: relative;
+    text-transform: uppercase;
+    display: none;
+}
+
+.start-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 
+        0 8px 0 #cc5200,
+        0 0 30px rgba(255, 204, 0, 0.7);
+}
+
+.start-button:active {
+    transform: translateY(3px);
+    box-shadow: 
+        0 2px 0 #cc5200,
+        0 0 10px rgba(255, 204, 0, 0.3);
+}
+
+.start-button:disabled {
+    background: linear-gradient(to bottom, #999, #666);
+    color: #333;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 5px 0 #444;
+}
+
+.start-button.visible {
+    display: block;
+}
+
+/* Oyuncu Grid */
+.player-grid-container {
+    margin-bottom: 30px;
+}
+
+.player-grid-container h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 20px;
+    color: #ffcc00;
+    text-shadow: 2px 2px 0 #000;
+    position: relative;
+    display: inline-block;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 5px 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 2px solid #ffcc00;
+    border-radius: 30px;
+}
+
+.player-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 15px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 2px solid #666;
+    border-radius: 10px;
+}
+
+.player-card {
+    background: linear-gradient(to bottom, #444, #222);
+    border-radius: 5px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    border: 2px solid #666;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
+}
+
+.player-card:hover, .player-card.focused, .player-card.hover-effect {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.7);
+    z-index: 1;
+    border-color: #ffcc00;
+    background: linear-gradient(to bottom, #555, #333);
+}
+
+.player-card.hover-effect {
+    animation: card-glow 1s infinite alternate;
+}
+
+@keyframes card-glow {
+    from {
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.7);
+    }
+    to {
+        box-shadow: 0 10px 25px rgba(255, 204, 0, 0.7);
+    }
+}
+
+.player-card.selected-player1 {
+    background: linear-gradient(to bottom, #0044cc, #002266);
+    border-color: #0066ff;
+    box-shadow: 0 0 15px rgba(0, 102, 255, 0.5);
+    transform: scale(1.1);
+    z-index: 2;
+}
+
+.player-card.selected-player2 {
+    background: linear-gradient(to bottom, #cc0000, #660000);
+    border-color: #ff0000;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+    transform: scale(1.1);
+    z-index: 2;
+}
+
+.player-card.selected-player1:after, .player-card.selected-player2:after {
+    content: '✓';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 25px;
+    height: 25px;
+    background-color: #ffcc00;
+    color: #000;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    border: 2px solid #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.player-card-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    background-size: cover;
+    background-position: center;
+    border: 2px solid #fff;
+    transition: all 0.3s ease;
+}
+
+.player-card.selected-player1 .player-card-img {
+    border-color: #0066ff;
+}
+
+.player-card.selected-player2 .player-card-img {
+    border-color: #ff0000;
+}
+
+.player-card-name {
+    font-size: 12px;
+    text-align: center;
+    margin-bottom: 5px;
+    text-shadow: 1px 1px 0 #000;
+    color: #fff;
+}
+
+.player-card-stats {
+    font-size: 10px;
+    text-align: center;
+    color: #ffcc00;
+}
+
+.selection-indicator {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ffcc00;
+    font-size: 24px;
+    text-shadow: 0 0 10px #ffcc00;
+    animation: bounce 0.5s infinite alternate;
+    display: none;
+}
+
+.player-card.active .selection-indicator {
+    display: block;
+}
+
+@keyframes bounce {
+    from {
+        transform: translateX(-50%) translateY(0);
+    }
+    to {
+        transform: translateX(-50%) translateY(-10px);
+    }
+}
+
+/* Yönergeler */
+.instructions {
+    text-align: center;
+    font-size: 12px;
+    color: #ccc;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    border: 1px solid #666;
+}
+
+.mobile-instructions {
+    display: none; /* Varsayılan olarak gizli, mobil görünümde gösterilecek */
+    color: #ffcc00;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+/* Mobil dokunmatik kontroller */
+.touch-controls {
+    display: none; /* Varsayılan olarak gizli, mobil görünümde gösterilecek */
+    justify-content: center;
+    margin: 15px 0;
+    gap: 10px;
+}
+
+.touch-button {
+    width: 60px;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #ffcc00;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ffcc00;
+    font-size: 24px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.touch-button:active {
+    background: rgba(255, 204, 0, 0.3);
+    transform: scale(0.95);
+}
+
+/* Responsive Tasarım */
+@media (max-width: 992px) {
+    .player-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .header h1 {
+        font-size: 32px;
+    }
+    
+    .header h2 {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .player-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .player-selection-container {
+        flex-direction: row; 
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap; 
+        gap: 10px;
+    }
+    
+    #player1-selection, #player2-selection {
+        width: 45%; 
+        min-width: 150px;
+        max-width: 250px;
+    }
+    
+    .vs-badge {
+        margin: 0 10px;
+        flex-shrink: 0;
+    }
+    
+    .header h1 {
+        font-size: 24px;
+    }
+    
+    .header h2 {
+        font-size: 16px;
+    }
+    
+    /* Mobil dokunmatik kontroller göster */
+    .touch-controls {
+        display: flex;
+    }
+    
+    /* Mobil yönergeleri göster, masaüstü yönergelerini gizle */
+    .mobile-instructions {
+        display: block;
+    }
+    
+    .instructions p:first-child {
+        display: none;
+    }
+    
+    /* Dokunmatik cihazlar için daha büyük dokunma alanları */
+    .player-card {
+        padding: 12px;
+        min-height: 140px;
+    }
+    
+    .player-card-img {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .start-button {
+        padding: 15px 30px;
+        font-size: 18px;
+    }
+    
+    /* Oyuncu bilgilerini küçült */
+    .player-name {
+        font-size: 16px;
+    }
+    
+    .player-stats {
+        font-size: 12px;
+        padding: 5px;
+    }
+    
+    /* Oyuncu seçim panelindeki yazıları küçült */
+    .player-selection .player-name {
+        font-size: 18px;
+    }
+    
+    .player-selection .player-stats {
+        font-size: 12px;
+        padding: 5px;
+        line-height: 1.3;
+    }
+}
+
+@media (max-width: 576px) {
+    .player-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .player-selection-container {
+        flex-direction: row;
+    }
+    
+    #player1-selection, #player2-selection {
+        width: 42%; 
+        min-width: 120px;
+        padding: 8px;
+    }
+    
+    .player-portrait {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .vs-badge {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+        margin: 0 5px;
+    }
+    
+    .header h1 {
+        font-size: 20px;
+    }
+    
+    .header h2 {
+        font-size: 14px;
+    }
+    
+    .container {
+        padding: 8px;
+    }
+    
+    body {
+        padding: 8px;
+    }
+    
+    /* Dokunmatik cihazlar için daha büyük dokunma alanları */
+    .player-card {
+        padding: 8px;
+        min-height: 120px;
+    }
+    
+    .player-card-img {
+        width: 70px;
+        height: 70px;
+    }
+    
+    /* Oyuncu bilgilerini daha kompakt hale getir */
+    .player-info {
+        font-size: 11px;
+    }
+    
+    .player-name {
+        font-size: 14px;
+        margin-bottom: 3px;
+    }
+    
+    .player-stats {
+        font-size: 10px;
+        padding: 3px;
+        line-height: 1.2;
+    }
+    
+    .start-button {
+        padding: 12px 24px;
+        font-size: 16px;
+        margin-top: 10px;
+    }
+    
+    .touch-button {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+    
+    /* Oyuncu seçim panelindeki yazıları daha da küçült */
+    .player-selection .player-name {
+        font-size: 16px;
+        margin-bottom: 3px;
+    }
+    
+    .player-selection .player-stats {
+        font-size: 10px;
+        padding: 3px;
+        line-height: 1.2;
+    }
+}
+
+/* Çok küçük ekranlar için ek düzenlemeler */
+@media (max-width: 400px) {
+    .player-selection-container {
+        gap: 3px;
+    }
+    
+    #player1-selection, #player2-selection {
+        width: 40%;
+        min-width: 100px;
+        padding: 5px;
+    }
+    
+    .vs-badge {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+        margin: 0 2px;
+    }
+    
+    .player-portrait {
+        width: 70px;
+        height: 70px;
+        margin-bottom: 5px;
+    }
+    
+    .player-name {
+        font-size: 12px;
+        margin-bottom: 2px;
+    }
+    
+    .player-stats {
+        font-size: 9px;
+        padding: 2px;
+        line-height: 1.1;
+    }
+    
+    .player-card {
+        padding: 6px;
+        min-height: 100px;
+    }
+    
+    .player-card-img {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .player-card .player-name {
+        font-size: 11px;
+    }
+    
+    .player-card .player-stats {
+        font-size: 9px;
+        padding: 2px;
+    }
+    
+    .start-button {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+    
+    .touch-button {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+    
+    .header h1 {
+        font-size: 18px;
+    }
+    
+    .header h2 {
+        font-size: 12px;
+    }
+    
+    /* Oyuncu seçim panelindeki yazıları en küçük boyuta getir */
+    .player-selection .player-name {
+        font-size: 14px;
+        margin-bottom: 2px;
+    }
+    
+    .player-selection .player-stats {
+        font-size: 9px;
+        padding: 2px;
+        line-height: 1.1;
+    }
+}
+
+/* Dokunmatik cihazlar için iyileştirmeler */
+@media (hover: none) {
+    /* Hover efektlerini kaldır */
+    .player-card:hover {
+        transform: none;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
+        border-color: #666;
+        background: linear-gradient(to bottom, #444, #222);
+    }
+    
+    /* Aktif oyuncu ve seçilen oyuncular için daha belirgin görünüm */
+    .player-selection.active-selection {
+        transform: scale(1.03);
+    }
+    
+    /* Dokunulabilir elementlere belirgin görünüm */
+    .player-selection, .player-card, .start-button {
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* Dokunma geri bildirimi */
+    .player-card:active, .player-selection:active, .start-button:active {
+        transform: scale(0.98);
+        transition: transform 0.1s;
+    }
+}
+
+/* Street Fighter Özel Efektler */
+/* Enerji Çubuğu Efekti */
+.player-selection::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(to right, #ff0000, #ffcc00, #00cc00);
+    border-radius: 5px 5px 0 0;
+}
+
+/* Karakterlerin Arkasındaki Işık Efekti */
+.player-portrait::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0) 70%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Pixel Efekti */
+.container::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABZJREFUeNpi/M/A8J+RkZGRgQEgAADAZwIBjO6J7QAAAABJRU5ErkJggg==');
+    pointer-events: none;
+    opacity: 0.3;
+    z-index: 9999;
+}
